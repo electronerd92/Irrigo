@@ -3,13 +3,16 @@
 
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
+#include "Timer.hpp" // Include the Timer class
 
 class LCDManager
 {
 private:
     static LCDManager *instance; // Singleton instance
     LiquidCrystal_I2C lcd;       // LCD instance
-    uint8_t linesNumber;         // Number of lines on the LCD
+    const uint8_t linesNumber;   // Number of lines on the LCD
+    const uint8_t columnsNumber; // Number of columns on the LCD
+    Timer inactivityTimer;       // Timer to track inactivity
     bool LCDisON;
 
     // Private constructor
@@ -24,17 +27,32 @@ public:
     static LCDManager &getInstance();
 
     // Clear the LCD
-    void clear();
-
-    // Set the cursor position
-    void setCursor(uint8_t col, uint8_t row);
+    void clear(int8_t col = -1, int8_t row = -1);
 
     // Print a message at a specific position
     template <typename T>
-    inline void print(const T &message, uint8_t col = 0, uint8_t row = 0)
+    inline void print(const T &message, int8_t col = 0, uint8_t row = 0)
     {
-        setCursor(col, row);
-        lcd.print(message);
+        if (LCDisON)
+            inactivityTimer.start();
+
+        if (col < 0) // Negative column value
+        {
+            int8_t startCol = columnsNumber + col; // Calculate starting position
+            lcd.setCursor(startCol, row);
+
+            // Print backwards
+            lcd.rightToLeft();
+            lcd.print(message);
+
+            // Reset Printing direction
+            lcd.leftToRight();
+        }
+        else
+        {
+            lcd.setCursor(col, row);
+            lcd.print(message);
+        }
     }
 
     // Scroll up the display
@@ -47,6 +65,8 @@ public:
     uint8_t getLinesNumber() const;
 
     bool getLCDTurnedON() const;
+
+    void update();
 };
 
 #endif // LCDMANAGER_H

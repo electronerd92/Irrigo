@@ -1,18 +1,25 @@
 #include "LCDManager.h"
 #include "../ProjectConfig.h"
+#include "CommandManager.h"
+#include "Command.h"
 
 // Initialize the static member
 LCDManager *LCDManager::instance = nullptr;
 
 // Private constructor
 LCDManager::LCDManager()
-    : lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS), linesNumber(LCD_ROWS)
+    : lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS),
+      linesNumber(LCD_ROWS),
+      columnsNumber(LCD_COLUMNS),
+      inactivityTimer(LCD_TIME_ON), // Example: 1 minute inactivity period
+      LCDisON(true)                 // Assume LCD is ON initially
 {
     lcd.init();
     lcd.backlight();
+    inactivityTimer.start();
 }
 
-// Method to get the single instance of CommandManager
+// Method to get the single instance of LCDManager
 LCDManager &LCDManager::getInstance()
 {
     if (instance == nullptr)
@@ -23,24 +30,38 @@ LCDManager &LCDManager::getInstance()
 }
 
 // Clear the LCD
-void LCDManager::clear()
+void LCDManager::clear(int8_t col, int8_t row)
 {
-    lcd.clear();
+    if (col == -1 && row == -1)
+    {
+        // Clear the entire display
+        lcd.clear();
+    }
+    else if (col != -1 && row == -1)
+    {
+        // Clear a specific column
+        for (uint8_t r = 0; r < linesNumber; ++r)
+        {
+            lcd.setCursor(col, r);
+            lcd.print(' ');
+        }
+    }
+    else if (col == -1 && row != -1)
+    {
+        // Clear a specific row
+        lcd.setCursor(0, row);
+        for (uint8_t c = 0; c < columnsNumber; ++c)
+        {
+            lcd.print(' ');
+        }
+    }
+    else if (col != -1 && row != -1)
+    {
+        // Clear a specific character
+        lcd.setCursor(col, row);
+        lcd.print(' ');
+    }
 }
-
-// Set the cursor position
-void LCDManager::setCursor(uint8_t col, uint8_t row)
-{
-    lcd.setCursor(col, row);
-}
-
-// // Print a message at a specific position
-// template <typename T>
-// void LCDManager::print(const T &message, uint8_t col, uint8_t row)
-// {
-//     setCursor(col, row);
-//     lcd.print(message);
-// }
 
 // Get the number of lines on the LCD
 uint8_t LCDManager::getLinesNumber() const
@@ -72,5 +93,21 @@ bool LCDManager::scrollDown(uint8_t *cursor)
 
 bool LCDManager::getLCDTurnedON() const
 {
-    return true;
+    return LCDisON;
+}
+
+// Update method to manage LCD state based on inactivity
+void LCDManager::update()
+{
+    if (LCDisON && inactivityTimer.timeout())
+    {
+        lcd.noBacklight();
+        LCDisON = false;
+    }
+    else if (!LCDisON && CommandManager::getInstance().readCommand() != Command::NONE)
+    {
+        LCDisON = true;
+        lcd.backlight();
+        inactivityTimer.start();
+    }
 }
