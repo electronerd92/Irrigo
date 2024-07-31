@@ -33,7 +33,7 @@ Menu &Menu::getInstance()
     return *instance;
 }
 
-void Menu::setCurrentMenuItem(NavigableMenu *newCurrentMenu)
+void Menu::setCurrentMenuItem(MenuIterableObject *newCurrentMenu)
 {
     currentMenuItem = newCurrentMenu;
     cursor = 0;

@@ -2,14 +2,15 @@
 #define MENU_H
 
 #include <Arduino.h>
+#include "MenuIterableObject.h"
 #include "NavigableMenu.h"
 
 class Menu
 {
 private:
     static Menu *instance;
-    NavigableMenu *mainMenu;        // Constant pointer to the main menu item
-    NavigableMenu *currentMenuItem; // Pointer to the current menu item
+    NavigableMenu *mainMenu;             // Constant pointer to the main menu item
+    MenuIterableObject *currentMenuItem; // Pointer to the current menu item
     uint8_t cursor;
     bool callbackActivated;
 
@@ -27,7 +28,7 @@ public:
     static Menu &create(NavigableMenu *mainMenuItem);
 
     void update();
-    void setCurrentMenuItem(NavigableMenu *newCurrentMenu);
+    void setCurrentMenuItem(MenuIterableObject *newCurrentMenu);
     void navigateAndPrintMenu(Command cmd);
     void printMenu(bool clearAll);
     NavigableMenu *getMainMenu() const;
