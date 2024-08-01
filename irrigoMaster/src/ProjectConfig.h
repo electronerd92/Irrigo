@@ -10,7 +10,8 @@ const uint8_t ROTARY_BUTTON_PIN = 4;
 const uint8_t LCD_ADDRESS = 0x27;
 const uint8_t LCD_COLUMNS = 20;
 const uint8_t LCD_ROWS = 4;
-const unsigned long LCD_TIME_ON = 10000; // ms
+const unsigned long LCD_TIME_ON = 10000;      // ms
+const unsigned long LCD_BLINK_INTERVAL = 500; // ms
 
 // You can add other project-wide configuration constants here
 

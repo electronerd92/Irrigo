@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include "Timer.hpp" // Include the Timer class
+#include "Blinker.h" // Include the Blinker class
 
 class LCDManager
 {
@@ -14,6 +15,7 @@ private:
     const uint8_t columnsNumber; // Number of columns on the LCD
     Timer inactivityTimer;       // Timer to track inactivity
     bool LCDisON;
+    Blinker blinker; // Blinker instance
 
     // Private constructor
     LCDManager();
@@ -67,6 +69,12 @@ public:
     bool getLCDTurnedON() const;
 
     void update();
+
+    // Start blinking a word at a specific position
+    void startBlinking(const __FlashStringHelper *blinkWord, int8_t col, uint8_t row);
+
+    // Stop blinking the word
+    void stopBlinking();
 };
 
 #endif // LCDMANAGER_H

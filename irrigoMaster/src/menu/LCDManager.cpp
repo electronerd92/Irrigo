@@ -12,7 +12,8 @@ LCDManager::LCDManager()
       linesNumber(LCD_ROWS),
       columnsNumber(LCD_COLUMNS),
       inactivityTimer(LCD_TIME_ON), // Example: 1 minute inactivity period
-      LCDisON(true)                 // Assume LCD is ON initially
+      LCDisON(true),                // Assume LCD is ON initially
+      blinker(LCD_BLINK_INTERVAL)
 {
     lcd.init();
     lcd.backlight();
@@ -102,6 +103,7 @@ void LCDManager::update()
     if (LCDisON && inactivityTimer.timeout())
     {
         lcd.noBacklight();
+        blinker.stopBlinking();
         LCDisON = false;
     }
     else if (!LCDisON && CommandManager::getInstance().readCommand() != Command::NONE)
@@ -110,4 +112,19 @@ void LCDManager::update()
         lcd.backlight();
         inactivityTimer.start();
     }
+
+    // Update the blinker
+    blinker.update();
+}
+
+// Start blinking a word at a specific position
+void LCDManager::startBlinking(const __FlashStringHelper *blinkWord, int8_t col, uint8_t row)
+{
+    blinker.startBlinking(blinkWord, col, row);
+}
+
+// Stop blinking the word
+void LCDManager::stopBlinking()
+{
+    blinker.stopBlinking();
 }
