@@ -11,7 +11,7 @@ Menu::Menu()
     : mainMenu(nullptr), currentMenuItem(nullptr), cursor(0), callbackActivated(false) {}
 
 // Static method to create the instance if it hasn't been created yet
-Menu &Menu::create(NavigableMenu *mainMenuItem)
+void Menu::createInstance(NavigableMenu *mainMenuItem)
 {
     if (instance == nullptr)
     {
@@ -20,7 +20,6 @@ Menu &Menu::create(NavigableMenu *mainMenuItem)
         instance->mainMenu = mainMenuItem;
         instance->setCurrentMenuItem(mainMenuItem);
     }
-    return *instance;
 }
 
 // Static method to get the single instance
@@ -36,8 +35,19 @@ Menu &Menu::getInstance()
 void Menu::setCurrentMenuItem(MenuIterableObject *newCurrentMenu)
 {
     currentMenuItem = newCurrentMenu;
-    cursor = 0;
-    currentMenuItem->resetSelectedIndex();
+
+    if (hasSavedDisplayState)
+    {
+        cursor = savedCursor;
+        currentMenuItem->setSelectedIndex(savedSelectedIndex); // Assuming it resets to the saved index
+        hasSavedDisplayState = false;                          // Clear the saved state after applying
+    }
+    else
+    {
+        cursor = 0;
+        currentMenuItem->setSelectedIndex(0);
+    }
+
     printMenu(true);
 }
 
@@ -105,4 +115,11 @@ void Menu::printMenu(bool clearAll)
 NavigableMenu *Menu::getMainMenu() const
 {
     return mainMenu;
+}
+
+void Menu::saveDisplayState()
+{
+    savedCursor = cursor;
+    savedSelectedIndex = currentMenuItem->getSelectedIndex();
+    hasSavedDisplayState = true;
 }

@@ -33,28 +33,26 @@ public:
 
     // Print a message at a specific position
     template <typename T>
-    inline void print(const T &message, int8_t col = 0, uint8_t row = 0)
+    inline void print(const T &message, uint8_t col = 0, uint8_t row = 0, bool rightToLeft = false)
     {
         if (LCDisON)
             inactivityTimer.start();
 
-        if (col < 0) // Negative column value
+        if (rightToLeft)
         {
-            int8_t startCol = columnsNumber + col; // Calculate starting position
-            lcd.setCursor(startCol, row);
-
-            // Print backwards
+            lcd.setCursor(columnsNumber - 1 - col, row);
             lcd.rightToLeft();
-            lcd.print(message);
-
-            // Reset Printing direction
-            lcd.leftToRight();
         }
         else
         {
             lcd.setCursor(col, row);
-            lcd.print(message);
+            lcd.leftToRight();
         }
+
+        lcd.print(message);
+
+        // Reset Printing direction to leftToRight for consistency
+        lcd.leftToRight();
     }
 
     // Scroll up the display

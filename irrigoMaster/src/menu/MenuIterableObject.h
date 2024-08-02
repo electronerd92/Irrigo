@@ -15,7 +15,7 @@ public:
     }
     virtual const bool printContentAtIndex(uint8_t index, LCDManager &lcdManager, uint8_t row) const = 0;
     virtual uint8_t getSelectedIndex() const = 0;
-    virtual void resetSelectedIndex() = 0;
+    virtual void setSelectedIndex(uint8_t index) = 0;
     virtual bool incrementSelectedIndex() = 0;
     virtual bool decrementSelectedIndex() = 0;
     virtual bool select(Command cmd) const = 0;

@@ -38,29 +38,26 @@ void LCDManager::clear(int8_t col, int8_t row)
         // Clear the entire display
         lcd.clear();
     }
-    else if (col != -1 && row == -1)
+    else if (row == -1)
     {
         // Clear a specific column
         for (uint8_t r = 0; r < linesNumber; ++r)
         {
-            lcd.setCursor(col, r);
-            lcd.print(' ');
+            print(F(" "), col, r);
         }
     }
-    else if (col == -1 && row != -1)
+    else if (col == -1)
     {
         // Clear a specific row
-        lcd.setCursor(0, row);
         for (uint8_t c = 0; c < columnsNumber; ++c)
         {
-            lcd.print(' ');
+            print(F(" "), c, row);
         }
     }
-    else if (col != -1 && row != -1)
+    else
     {
         // Clear a specific character
-        lcd.setCursor(col, row);
-        lcd.print(' ');
+        print(F(" "), col, row);
     }
 }
 

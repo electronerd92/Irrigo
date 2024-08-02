@@ -102,9 +102,9 @@ uint8_t NavigableMenu::getSelectedIndex() const
 }
 
 // Reset the selected index
-void NavigableMenu::resetSelectedIndex()
+void NavigableMenu::setSelectedIndex(uint8_t index)
 {
-    selectedIndex = 0;
+    selectedIndex = index;
 }
 
 // Print content at index
@@ -116,10 +116,10 @@ const bool NavigableMenu::printContentAtIndex(uint8_t index, LCDManager &lcdMana
         lcdManager.print(item->getName(), 1, row);
 
         if (index == 0 && this != Menu::getInstance().getMainMenu())
-            lcdManager.print(F("^"), -1, row);
+            lcdManager.print(F("^"), 0, row, true);
 
         else if (item->getType() == MenuObjectType::ITERABLE)
-            lcdManager.print(F(">"), -1, row);
+            lcdManager.print(F(">"), 0, row, true);
 
         return true;
     }

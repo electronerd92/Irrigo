@@ -33,16 +33,13 @@ void setup()
   settingsMenu->addSubItem(settingsV1);
 
   // Create the menu instance
-  menu = &Menu::create(mainMenu);
-
-  // Initialize the command manager instance
-  commandManager = &CommandManager::getInstance();
+  Menu::createInstance(mainMenu);
 }
 
 void loop()
 {
-  menu->update();
-  commandManager->update();
+  Menu::getInstance().update();
+  CommandManager::getInstance().update();
   LCDManager::getInstance().update();
 }
 

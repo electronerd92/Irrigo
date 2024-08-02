@@ -1,5 +1,6 @@
 #include "ValveSettingsMenu.h"
 #include "Menu.h"
+#include "Debug.hpp"
 
 // Initialize the singleton instance pointer to nullptr
 ValveSettingsMenu *ValveSettingsMenu::instance = nullptr;
@@ -7,7 +8,8 @@ ValveSettingsMenu *ValveSettingsMenu::instance = nullptr;
 bool ValveSettingsMenu::initialActionPerformed = false;
 
 // Private constructor
-ValveSettingsMenu::ValveSettingsMenu() : parent(nullptr), source(nullptr), tmpSource(), selectedIndex(0)
+ValveSettingsMenu::ValveSettingsMenu(MenuIterableObject *parent)
+    : parent(parent), source(nullptr), tmpSource(), selectedIndex(0)
 {
     goBackMenu = new CallableMenu(F("Go Back"), goBack);
     validateSettingsMenu = new CallableMenu(F("Validate"), validateSettings);
@@ -18,12 +20,21 @@ ValveSettingsMenu::ValveSettingsMenu() : parent(nullptr), source(nullptr), tmpSo
     setSoilMoistureLevelMenu = new CallableMenu(F("Soil Moisture Level"), setSoilMoistureLevel);
 }
 
+// Static method to create the singleton instance
+void ValveSettingsMenu::createInstance(MenuIterableObject *parent)
+{
+    if (instance == nullptr)
+    {
+        instance = new ValveSettingsMenu(parent);
+    }
+}
+
 // Static method to get the singleton instance
 ValveSettingsMenu &ValveSettingsMenu::getInstance()
 {
     if (instance == nullptr)
     {
-        instance = new ValveSettingsMenu();
+        debugLog(F("Error: GetInstance called before Create"), LogLevel::ALERT);
     }
     return *instance;
 }
@@ -131,9 +142,9 @@ uint8_t ValveSettingsMenu::getSelectedIndex() const
     return selectedIndex;
 }
 
-void ValveSettingsMenu::resetSelectedIndex()
+void ValveSettingsMenu::setSelectedIndex(uint8_t index)
 {
-    selectedIndex = 0;
+    selectedIndex = index;
 }
 
 bool ValveSettingsMenu::incrementSelectedIndex()
@@ -164,11 +175,6 @@ bool ValveSettingsMenu::select(Command cmd) const
 MenuIterableObject *ValveSettingsMenu::getParent() const
 {
     return parent;
-}
-
-void ValveSettingsMenu::setParent(MenuIterableObject *p)
-{
-    parent = p;
 }
 
 // Define the callback functions

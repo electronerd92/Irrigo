@@ -28,7 +28,7 @@ private:
     const CallableMenu *setSoilMoistureLevelMenu;
 
     // Private constructor to prevent external instantiation
-    ValveSettingsMenu();
+    ValveSettingsMenu(MenuIterableObject *parent);
 
     const uint8_t getMaxCount() const;
     const CallableMenu *getSelectedMenu() const;
@@ -49,6 +49,9 @@ public:
     ValveSettingsMenu(const ValveSettingsMenu &) = delete;
     ValveSettingsMenu &operator=(const ValveSettingsMenu &) = delete;
 
+    // Static method to create the singleton instance
+    static void createInstance(MenuIterableObject *parent);
+
     // Static method to get the singleton instance
     static ValveSettingsMenu &getInstance();
 
@@ -62,14 +65,14 @@ public:
     // Implement abstract methods from MenuIterableObject
     const __FlashStringHelper *getName() const override { return nullptr; };
     bool selectEffect(Command cmd) const override { return false; };
+    void setParent(MenuIterableObject *parent) override {};
     const bool printContentAtIndex(uint8_t index, LCDManager &lcdManager, uint8_t row) const override;
     uint8_t getSelectedIndex() const override;
-    void resetSelectedIndex() override;
+    void setSelectedIndex(uint8_t index) override;
     bool incrementSelectedIndex() override;
     bool decrementSelectedIndex() override;
     bool select(Command cmd) const override;
     MenuIterableObject *getParent() const override;
-    void setParent(MenuIterableObject *parent) override;
 };
 
 #endif // VALVESETTINGSMENU_H

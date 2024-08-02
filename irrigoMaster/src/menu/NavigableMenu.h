@@ -27,7 +27,7 @@ public:
 
     uint8_t getSelectedIndex() const override;
 
-    void resetSelectedIndex() override;
+    void setSelectedIndex(uint8_t index) override;
 
     bool incrementSelectedIndex() override;
 

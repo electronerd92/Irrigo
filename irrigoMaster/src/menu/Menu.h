@@ -14,6 +14,11 @@ private:
     uint8_t cursor;
     bool callbackActivated;
 
+    // Saved display state
+    bool hasSavedDisplayState;
+    uint8_t savedCursor;
+    uint8_t savedSelectedIndex;
+
     // Private constructor to prevent external instantiation
     Menu();
 
@@ -25,13 +30,16 @@ public:
     static Menu &getInstance();
 
     // Static method to create the instance if it hasn't been created yet
-    static Menu &create(NavigableMenu *mainMenuItem);
+    static void createInstance(NavigableMenu *mainMenuItem);
 
     void update();
     void setCurrentMenuItem(MenuIterableObject *newCurrentMenu);
     void navigateAndPrintMenu(Command cmd);
     void printMenu(bool clearAll);
     NavigableMenu *getMainMenu() const;
+
+    // Methods for saving and restoring display state
+    void saveDisplayState();
 };
 
 #endif // MENU_H
