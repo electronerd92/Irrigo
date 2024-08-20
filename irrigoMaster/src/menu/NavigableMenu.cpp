@@ -116,10 +116,10 @@ const bool NavigableMenu::printContentAtIndex(uint8_t index, LCDManager &lcdMana
         lcdManager.print(item->getName(), 1, row);
 
         if (index == 0 && this != Menu::getInstance().getMainMenu())
-            lcdManager.print(F("^"), 0, row, true);
+            lcdManager.printRightToLeft(F("^"), 1, 0, row);
 
         else if (item->getType() == MenuObjectType::ITERABLE)
-            lcdManager.print(F(">"), 0, row, true);
+            lcdManager.printRightToLeft(F(">"), 1, 0, row);
 
         return true;
     }

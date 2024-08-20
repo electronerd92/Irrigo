@@ -33,13 +33,20 @@ public:
     static void createInstance(NavigableMenu *mainMenuItem);
 
     void update();
-    void setCurrentMenuItem(MenuIterableObject *newCurrentMenu);
+    void setCurrentMenuItem(MenuIterableObject *newCurrentMenu, bool loadDisplayState = false);
     void navigateAndPrintMenu(Command cmd);
     void printMenu(bool clearAll);
     NavigableMenu *getMainMenu() const;
 
     // Methods for saving and restoring display state
     void saveDisplayState();
+
+    // Start blinking a word at a specific position
+    template <typename T>
+    inline void startBlinking(const T &blinkWord, uint8_t col, bool rightToLeft = false)
+    {
+        LCDManager::getInstance().startBlinking(blinkWord, col, cursor, rightToLeft);
+    }
 };
 
 #endif // MENU_H

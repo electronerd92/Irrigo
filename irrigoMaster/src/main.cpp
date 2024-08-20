@@ -1,15 +1,18 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+#include "System.h"
 #include "Debug.hpp"
 #include "menu/Menu.h"
 #include "menu/NavigableMenu.h"
 #include "menu/CallableMenu.h"
 #include "menu/Command.h"
 #include "menu/CommandManager.h"
+#include "menu/ValveSettingsMenu.h"
 #include "menu/LCDManager.h"
+#include "irrigationSystem/IrrigationSystem.h"
 
-bool printHello1(Command cmd);
+bool setV1(Command cmd);
 bool printInfo(Command cmd);
 
 // Global pointers
@@ -20,7 +23,7 @@ void setup()
 {
   debugLog(F("Starting setup..."));
 
-  // // Create menu items
+  // Create menu items
   NavigableMenu *mainMenu = new NavigableMenu(F("Main"), 6);
   NavigableMenu *settingsMenu = new NavigableMenu(F("Settings"), 1);
   CallableMenu *infoMenu = new CallableMenu(F("Info"), printInfo);
@@ -28,12 +31,16 @@ void setup()
   mainMenu->addSubItem(settingsMenu);
   mainMenu->addSubItem(infoMenu);
 
-  CallableMenu *settingsV1 = new CallableMenu(F("V1 settings"), printHello1);
+  ValveSettingsMenu::createInstance(settingsMenu);
+
+  CallableMenu *settingsV1 = new CallableMenu(F("V1 settings"), setV1);
 
   settingsMenu->addSubItem(settingsV1);
 
   // Create the menu instance
   Menu::createInstance(mainMenu);
+
+  IrrigationSystem::getInstance();
 }
 
 void loop()
@@ -43,13 +50,12 @@ void loop()
   LCDManager::getInstance().update();
 }
 
-bool printHello1(Command cmd)
+bool setV1(Command cmd)
 {
-  debugLog(F("printHello1 "));
-
-  if (cmd == Command::SELECT)
-    return false; // exit
-  return true;
+  Menu::getInstance().saveDisplayState();
+  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(0));
+  Menu::getInstance().setCurrentMenuItem(&ValveSettingsMenu::getInstance());
+  return false;
 }
 
 bool printInfo(Command cmd)

@@ -31,9 +31,13 @@ private:
     ValveSettingsMenu(MenuIterableObject *parent);
 
     const uint8_t getMaxCount() const;
-    const CallableMenu *getSelectedMenu() const;
+    const CallableMenu *getMenuAtIndex(uint8_t index) const;
 
     static bool initialActionPerformed; // Static variable to track state
+
+    void validateTmpSource();
+    // Getter for tmpSource
+    static Valve &getTmpSource();
 
     // Static callback functions
     static bool goBack(Command cmd);
@@ -56,11 +60,6 @@ public:
     static ValveSettingsMenu &getInstance();
 
     void setSource(Valve *source);
-
-    // Getter for tmpSource
-    static Valve &getTmpSource();
-
-    void validateTmpSource();
 
     // Implement abstract methods from MenuIterableObject
     const __FlashStringHelper *getName() const override { return nullptr; };

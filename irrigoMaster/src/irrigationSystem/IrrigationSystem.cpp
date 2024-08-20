@@ -17,3 +17,14 @@ IrrigationSystem &IrrigationSystem::getInstance()
     }
     return *instance;
 }
+
+// Method to access the Valve objects
+Valve *IrrigationSystem::getValve(int index)
+{
+    if (index < 0 || index >= 2)
+    {
+        // Handle invalid index, for example, return the first valve
+        return nullptr;
+    }
+    return &valves[index];
+}

@@ -32,11 +32,11 @@ Menu &Menu::getInstance()
     return *instance;
 }
 
-void Menu::setCurrentMenuItem(MenuIterableObject *newCurrentMenu)
+void Menu::setCurrentMenuItem(MenuIterableObject *newCurrentMenu, bool loadDisplayState)
 {
     currentMenuItem = newCurrentMenu;
 
-    if (hasSavedDisplayState)
+    if (loadDisplayState && hasSavedDisplayState)
     {
         cursor = savedCursor;
         currentMenuItem->setSelectedIndex(savedSelectedIndex); // Assuming it resets to the saved index

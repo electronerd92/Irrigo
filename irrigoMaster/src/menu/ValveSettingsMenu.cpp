@@ -1,6 +1,7 @@
 #include "ValveSettingsMenu.h"
 #include "Menu.h"
 #include "Debug.hpp"
+#include "LCDManager.h"
 
 // Initialize the singleton instance pointer to nullptr
 ValveSettingsMenu *ValveSettingsMenu::instance = nullptr;
@@ -56,29 +57,28 @@ Valve &ValveSettingsMenu::getTmpSource()
 // Method to validate and apply changes
 void ValveSettingsMenu::validateTmpSource()
 {
-    if (source != nullptr)
-    {
-        *source = tmpSource; // Replace the original source with the modified copy
-    }
+    *source = tmpSource; // Replace the original source with the modified copy
 }
 
-const CallableMenu *ValveSettingsMenu::getSelectedMenu() const
+const CallableMenu *ValveSettingsMenu::getMenuAtIndex(uint8_t index) const
 {
     ValveMode valveMode = tmpSource.getMode();
     switch (valveMode)
     {
     case ValveMode::OFF:
-        switch (selectedIndex)
+        switch (index)
         {
         case 0:
             return goBackMenu;
         case 1:
             return changeModeMenu;
+        case 2:
+            return validateSettingsMenu;
         }
         break;
 
     case ValveMode::CLASSIC:
-        switch (selectedIndex)
+        switch (index)
         {
         case 0:
             return goBackMenu;
@@ -96,7 +96,7 @@ const CallableMenu *ValveSettingsMenu::getSelectedMenu() const
         break;
 
     case ValveMode::SMART:
-        switch (selectedIndex)
+        switch (index)
         {
         case 0:
             return goBackMenu;
@@ -121,7 +121,7 @@ const uint8_t ValveSettingsMenu::getMaxCount() const
     ValveMode valveMode = tmpSource.getMode();
 
     if (valveMode == ValveMode::OFF)
-        return 2;
+        return 3;
     if (valveMode == ValveMode::CLASSIC || valveMode == ValveMode::SMART)
         return 6;
     return 0;
@@ -131,9 +131,14 @@ const bool ValveSettingsMenu::printContentAtIndex(uint8_t index, LCDManager &lcd
 {
     if (index < getMaxCount())
     {
-        lcdManager.print(getSelectedMenu()->getName(), 1, row);
+        lcdManager.print(getMenuAtIndex(index)->getName(), 1, row);
+
+        if (getMenuAtIndex(index) == changeModeMenu)
+            lcdManager.printRightToLeft(valveModeToString(tmpSource.getMode()), valveModeStringLength(tmpSource.getMode()), 0, row);
+
         return true;
     }
+
     return false;
 }
 
@@ -169,7 +174,7 @@ bool ValveSettingsMenu::decrementSelectedIndex()
 
 bool ValveSettingsMenu::select(Command cmd) const
 {
-    return getSelectedMenu()->selectEffect(cmd);
+    return getMenuAtIndex(selectedIndex)->selectEffect(cmd);
 }
 
 MenuIterableObject *ValveSettingsMenu::getParent() const
@@ -180,7 +185,7 @@ MenuIterableObject *ValveSettingsMenu::getParent() const
 // Define the callback functions
 bool ValveSettingsMenu::goBack(Command cmd)
 {
-    Menu::getInstance().setCurrentMenuItem(ValveSettingsMenu::getInstance().getParent());
+    Menu::getInstance().setCurrentMenuItem(ValveSettingsMenu::getInstance().getParent(), true);
     return false;
 }
 
@@ -193,41 +198,46 @@ bool ValveSettingsMenu::validateSettings(Command cmd)
 
 bool ValveSettingsMenu::changeMode(Command cmd)
 {
-    // Check if initial actions have been performed
-    if (!initialActionPerformed)
-    {
-        // Perform initial actions
-        initialActionPerformed = true;
-        return true;
-    }
-
-    // If the command is SELECT, skip further processing
-    if (cmd == Command::SELECT)
-    {
-        initialActionPerformed = false;
-        return false;
-    }
-
     ValveSettingsMenu &menu = ValveSettingsMenu::getInstance();
     Valve &tmpSource = menu.getTmpSource();
 
-    // Get the current mode
-    ValveMode currentMode = tmpSource.getMode();
+    LCDManager::getInstance().stopBlinking();
 
-    // Calculate the next mode based on the command
-    ValveMode nextMode;
-    if (cmd == Command::UP)
+    // Check if initial actions have been performed
+    if (initialActionPerformed)
     {
-        nextMode = static_cast<ValveMode>((currentMode + 1) % 3);
+        // If the command is SELECT, skip further processing
+        if (cmd == Command::SELECT)
+        {
+            initialActionPerformed = false;
+            return false;
+        }
+
+        // Get the current mode
+        ValveMode currentMode = tmpSource.getMode();
+
+        // Calculate the next mode based on the command
+        ValveMode nextMode;
+        if (cmd == Command::UP)
+        {
+            nextMode = static_cast<ValveMode>((currentMode + 1) % 3);
+        }
+        else if (cmd == Command::DOWN)
+        {
+            nextMode = static_cast<ValveMode>((currentMode + 2) % 3); // (currentMode - 1 + 3) % 3
+        }
+
+        // Set the next mode
+        tmpSource.setMode(nextMode);
     }
-    else if (cmd == Command::DOWN)
+
+    else
     {
-        nextMode = static_cast<ValveMode>((currentMode + 2) % 3); // (currentMode - 1 + 3) % 3
+        // Perform initial actions
+        initialActionPerformed = true;
     }
 
-    // Set the next mode
-    tmpSource.setMode(nextMode);
-
+    Menu::getInstance().startBlinking(valveModeToString(tmpSource.getMode()), 0, true);
     return true;
 }
 

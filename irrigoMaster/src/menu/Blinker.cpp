@@ -1,9 +1,9 @@
 #include "Blinker.h"
 #include "LCDManager.h"
 
-Blinker::Blinker(const uint32_t blinkInterval)
-    : blinkTimer(blinkInterval),
-      blinkWord(nullptr),
+Blinker::Blinker()
+    : blinkTimer(LCD_BLINK_INTERVAL),
+      blinkWord(new char[LCD_BLINK_BUFFER_SIZE]),
       col(0),
       row(0),
       wordLength(0),
@@ -13,25 +13,24 @@ Blinker::Blinker(const uint32_t blinkInterval)
 {
 }
 
-void Blinker::startBlinking(const __FlashStringHelper *blinkWord, uint8_t col, uint8_t row, bool rightToLeft)
-{
-    this->blinkWord = blinkWord;
-    this->col = col;
-    this->row = row;
-    this->wordLength = strlen_P(reinterpret_cast<const char *>(blinkWord));
-    this->isBlinking = true;
-    this->blinkState = true;
-    this->rightToLeft = rightToLeft;
-    this->blinkTimer.start();
-}
-
 void Blinker::stopBlinking()
 {
     if (!isBlinking)
         return;
     isBlinking = false;
-    // Ensure the word is printed when stopping
-    LCDManager::getInstance().print(blinkWord, col, row, rightToLeft);
+    // Clear the word if it was blinking
+    if (blinkState)
+    {
+        clearWord();
+    }
+}
+
+void Blinker::clearWord()
+{
+    for (uint8_t i = 0; i < wordLength; ++i)
+    {
+        rightToLeft ? LCDManager::getInstance().clearRightToLeft(col + i, row) : LCDManager::getInstance().clear(col + i, row);
+    }
 }
 
 void Blinker::update()
@@ -41,22 +40,12 @@ void Blinker::update()
         if (blinkState)
         {
             // Clear the word
-            for (uint8_t i = 0; i < wordLength; ++i)
-            {
-                if (rightToLeft)
-                {
-                    LCDManager::getInstance().clear(col - i, row);
-                }
-                else
-                {
-                    LCDManager::getInstance().clear(col + i, row);
-                }
-            }
+            clearWord();
         }
         else
         {
             // Print the word
-            LCDManager::getInstance().print(blinkWord, col, row, rightToLeft);
+            rightToLeft ? LCDManager::getInstance().printRightToLeft(blinkWord, wordLength, col, row) : LCDManager::getInstance().print(blinkWord, col, row);
         }
         blinkState = !blinkState; // Toggle the blink state
         blinkTimer.start();       // Restart the blink timer

@@ -13,7 +13,7 @@ LCDManager::LCDManager()
       columnsNumber(LCD_COLUMNS),
       inactivityTimer(LCD_TIME_ON), // Example: 1 minute inactivity period
       LCDisON(true),                // Assume LCD is ON initially
-      blinker(LCD_BLINK_INTERVAL)
+      blinker()
 {
     lcd.init();
     lcd.backlight();
@@ -28,6 +28,12 @@ LCDManager &LCDManager::getInstance()
         instance = new LCDManager();
     }
     return *instance;
+}
+
+// Clear the LCD
+void LCDManager::clearRightToLeft(uint8_t col, uint8_t row)
+{
+    printRightToLeft(F(" "), 1, col, row);
 }
 
 // Clear the LCD
@@ -112,12 +118,6 @@ void LCDManager::update()
 
     // Update the blinker
     blinker.update();
-}
-
-// Start blinking a word at a specific position
-void LCDManager::startBlinking(const __FlashStringHelper *blinkWord, int8_t col, uint8_t row)
-{
-    blinker.startBlinking(blinkWord, col, row);
 }
 
 // Stop blinking the word
