@@ -4,7 +4,7 @@
 // put function declarations here:
 int myFunction(int, int);
 
-enum ValveMode : byte
+enum class ValveMode : byte
 {
     OFF,
     CLASSIC,

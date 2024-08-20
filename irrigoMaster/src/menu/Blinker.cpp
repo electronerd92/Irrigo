@@ -3,7 +3,6 @@
 
 Blinker::Blinker()
     : blinkTimer(LCD_BLINK_INTERVAL),
-      blinkWord(new char[LCD_BLINK_BUFFER_SIZE]),
       col(0),
       row(0),
       wordLength(0),
@@ -45,7 +44,7 @@ void Blinker::update()
         else
         {
             // Print the word
-            rightToLeft ? LCDManager::getInstance().printRightToLeft(blinkWord, wordLength, col, row) : LCDManager::getInstance().print(blinkWord, col, row);
+            rightToLeft ? LCDManager::getInstance().printRightToLeft(SystemCache::getBuffer(), wordLength, col, row) : LCDManager::getInstance().print(SystemCache::getBuffer(), col, row);
         }
         blinkState = !blinkState; // Toggle the blink state
         blinkTimer.start();       // Restart the blink timer

@@ -2,14 +2,18 @@
 #define IRRIGATIONSYSTEM_H
 
 #include <Arduino.h>
-#include "Valve.h"
+#include "IrrigationValve.h"
+
+#define VALVES_NUMBER 8
 
 class IrrigationSystem
 {
 private:
     static IrrigationSystem *instance; // Singleton instance
 
-    Valve valves[2]; // Array of 2 Valve objects
+    IrrigationValve valves[VALVES_NUMBER]; // Array of 8 Valve objects
+
+    void startWatering(IrrigationValve *valve);
 
     // Private constructor
     IrrigationSystem();
@@ -23,7 +27,9 @@ public:
     static IrrigationSystem &getInstance();
 
     // Method to access the Valve objects
-    Valve *getValve(int index);
+    IrrigationValve *getValve(uint8_t index);
+
+    void update();
 };
 
 #endif // IRRIGATIONSYSTEM_H

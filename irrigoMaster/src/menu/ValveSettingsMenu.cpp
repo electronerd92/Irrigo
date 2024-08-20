@@ -6,18 +6,18 @@
 // Initialize the singleton instance pointer to nullptr
 ValveSettingsMenu *ValveSettingsMenu::instance = nullptr;
 // Initialize static state variables
-bool ValveSettingsMenu::initialActionPerformed = false;
+uint8_t ValveSettingsMenu::initialActionPerformed = 0;
 
 // Private constructor
 ValveSettingsMenu::ValveSettingsMenu(MenuIterableObject *parent)
-    : parent(parent), source(nullptr), tmpSource(), selectedIndex(0)
+    : parent(parent), source(nullptr), tmpSource(0), selectedIndex(0)
 {
     goBackMenu = new CallableMenu(F("Go Back"), goBack);
     validateSettingsMenu = new CallableMenu(F("Validate"), validateSettings);
     changeModeMenu = new CallableMenu(F("Mode"), changeMode);
-    setStartTimeMenu = new CallableMenu(F("Start Time"), setStartTime);
-    setDurationMenu = new CallableMenu(F("Duration"), setDuration);
-    setFrequencyMenu = new CallableMenu(F("Frequency"), setFrequency);
+    setStartTimeMenu = new CallableMenu(F("Start"), setStartTime);
+    setPeriodMenu = new CallableMenu(F("Period[min]"), setPeriod);
+    setFrequencyMenu = new CallableMenu(F("Freq[h]"), setFrequency);
     setSoilMoistureLevelMenu = new CallableMenu(F("Soil Moisture Level"), setSoilMoistureLevel);
 }
 
@@ -41,7 +41,7 @@ ValveSettingsMenu &ValveSettingsMenu::getInstance()
 }
 
 // Set the source
-void ValveSettingsMenu::setSource(Valve *src)
+void ValveSettingsMenu::setSource(IrrigationValve *src)
 {
     source = src;
     tmpSource = *src;  // Copy the source for modifications
@@ -49,7 +49,7 @@ void ValveSettingsMenu::setSource(Valve *src)
 }
 
 // Getter for tmpSource
-Valve &ValveSettingsMenu::getTmpSource()
+IrrigationValve &ValveSettingsMenu::getTmpSource()
 {
     return instance->tmpSource;
 }
@@ -87,7 +87,7 @@ const CallableMenu *ValveSettingsMenu::getMenuAtIndex(uint8_t index) const
         case 2:
             return setStartTimeMenu;
         case 3:
-            return setDurationMenu;
+            return setPeriodMenu;
         case 4:
             return setFrequencyMenu;
         case 5:
@@ -112,6 +112,8 @@ const CallableMenu *ValveSettingsMenu::getMenuAtIndex(uint8_t index) const
             return validateSettingsMenu;
         }
         break;
+    default:
+        break;
     }
     return nullptr;
 }
@@ -135,6 +137,15 @@ const bool ValveSettingsMenu::printContentAtIndex(uint8_t index, LCDManager &lcd
 
         if (getMenuAtIndex(index) == changeModeMenu)
             lcdManager.printRightToLeft(valveModeToString(tmpSource.getMode()), valveModeStringLength(tmpSource.getMode()), 0, row);
+
+        else if (getMenuAtIndex(index) == setStartTimeMenu)
+            lcdManager.printRightToLeftFormatted(0, row, "%02u:%02u", tmpSource.getStartTime().hour, tmpSource.getStartTime().minute);
+
+        else if (getMenuAtIndex(index) == setPeriodMenu)
+            lcdManager.printRightToLeftFormatted(0, row, "%u", tmpSource.getPeriod());
+
+        else if (getMenuAtIndex(index) == setFrequencyMenu)
+            lcdManager.printRightToLeftFormatted(0, row, "%u", tmpSource.getFrequency());
 
         return true;
     }
@@ -198,8 +209,7 @@ bool ValveSettingsMenu::validateSettings(Command cmd)
 
 bool ValveSettingsMenu::changeMode(Command cmd)
 {
-    ValveSettingsMenu &menu = ValveSettingsMenu::getInstance();
-    Valve &tmpSource = menu.getTmpSource();
+    IrrigationValve &tmpSource = ValveSettingsMenu::getInstance().getTmpSource();
 
     LCDManager::getInstance().stopBlinking();
 
@@ -209,7 +219,7 @@ bool ValveSettingsMenu::changeMode(Command cmd)
         // If the command is SELECT, skip further processing
         if (cmd == Command::SELECT)
         {
-            initialActionPerformed = false;
+            initialActionPerformed = 0;
             return false;
         }
 
@@ -220,11 +230,11 @@ bool ValveSettingsMenu::changeMode(Command cmd)
         ValveMode nextMode;
         if (cmd == Command::UP)
         {
-            nextMode = static_cast<ValveMode>((currentMode + 1) % 3);
+            nextMode = static_cast<ValveMode>((static_cast<uint8_t>(currentMode) + 1) % static_cast<uint8_t>(ValveMode::COUNT));
         }
         else if (cmd == Command::DOWN)
         {
-            nextMode = static_cast<ValveMode>((currentMode + 2) % 3); // (currentMode - 1 + 3) % 3
+            nextMode = static_cast<ValveMode>((static_cast<uint8_t>(currentMode) + 2) % static_cast<uint8_t>(ValveMode::COUNT)); // (currentMode - 1 + 3) % 3
         }
 
         // Set the next mode
@@ -234,7 +244,7 @@ bool ValveSettingsMenu::changeMode(Command cmd)
     else
     {
         // Perform initial actions
-        initialActionPerformed = true;
+        initialActionPerformed = 1;
     }
 
     Menu::getInstance().startBlinking(valveModeToString(tmpSource.getMode()), 0, true);
@@ -243,22 +253,121 @@ bool ValveSettingsMenu::changeMode(Command cmd)
 
 bool ValveSettingsMenu::setStartTime(Command cmd)
 {
-    // Implement the logic to set the start time
-    // Example: prompt user to enter start time
+    IrrigationValve &tmpSource = ValveSettingsMenu::getInstance().getTmpSource();
+
+    LCDManager::getInstance().stopBlinking();
+
+    if (initialActionPerformed == 1)
+    {
+        // If the command is SELECT, skip further processing
+        if (cmd == Command::SELECT)
+        {
+            initialActionPerformed = 2;
+        }
+        else if (cmd == Command::UP)
+        {
+            tmpSource.increaseStartTimeHour();
+        }
+        else if (cmd == Command::DOWN)
+        {
+            tmpSource.decreaseStartTimeHour();
+        }
+    }
+
+    else if (initialActionPerformed == 2)
+    {
+        if (cmd == Command::SELECT)
+        {
+            initialActionPerformed = 0;
+            return false;
+        }
+        if (cmd == Command::UP)
+        {
+            tmpSource.increaseStartTimeMinute();
+        }
+        else if (cmd == Command::DOWN)
+        {
+            tmpSource.decreaseStartTimeMinute();
+        }
+    }
+    else
+    {
+        // Perform initial actions
+        initialActionPerformed = 1;
+    }
+
+    Menu::getInstance().startBlinking(tmpSource.getStartTime(), 0, true);
+
     return true;
 }
 
-bool ValveSettingsMenu::setDuration(Command cmd)
+bool ValveSettingsMenu::setPeriod(Command cmd)
 {
-    // Implement the logic to set the duration
-    // Example: prompt user to enter duration
+    IrrigationValve &tmpSource = ValveSettingsMenu::getInstance().getTmpSource();
+
+    LCDManager::getInstance().stopBlinking();
+
+    // Check if initial actions have been performed
+    if (initialActionPerformed)
+    {
+        // If the command is SELECT, skip further processing
+        if (cmd == Command::SELECT)
+        {
+            initialActionPerformed = 0;
+            return false;
+        }
+        if (cmd == Command::UP)
+        {
+            tmpSource.increasePeriod();
+        }
+        else if (cmd == Command::DOWN)
+        {
+            tmpSource.decreasePeriod();
+        }
+    }
+    else
+    {
+        // Perform initial actions
+        initialActionPerformed = 1;
+    }
+
+    Menu::getInstance().startBlinking(tmpSource.getPeriod(), 0, true);
+
     return true;
 }
 
 bool ValveSettingsMenu::setFrequency(Command cmd)
 {
-    // Implement the logic to set the frequency
-    // Example: prompt user to enter frequency
+    IrrigationValve &tmpSource = ValveSettingsMenu::getInstance().getTmpSource();
+
+    LCDManager::getInstance().stopBlinking();
+
+    // Check if initial actions have been performed
+    if (initialActionPerformed)
+    {
+        // If the command is SELECT, skip further processing
+        if (cmd == Command::SELECT)
+        {
+            initialActionPerformed = 0;
+            return false;
+        }
+        if (cmd == Command::UP)
+        {
+            tmpSource.increaseFrequency();
+        }
+        else if (cmd == Command::DOWN)
+        {
+            tmpSource.decreaseFrequency();
+        }
+    }
+    else
+    {
+        // Perform initial actions
+        initialActionPerformed = 1;
+    }
+
+    Menu::getInstance().startBlinking(tmpSource.getFrequency(), 0, true);
+
     return true;
 }
 

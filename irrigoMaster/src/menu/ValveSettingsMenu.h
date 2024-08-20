@@ -3,7 +3,7 @@
 
 #include "MenuIterableObject.h"
 #include "CallableMenu.h"
-#include "../irrigationSystem/Valve.h"
+#include "../irrigationSystem/IrrigationValve.h"
 #include "Command.h"
 #include "LCDManager.h"
 
@@ -12,8 +12,8 @@ class ValveSettingsMenu : public MenuIterableObject
 private:
     static ValveSettingsMenu *instance;
     MenuIterableObject *parent;
-    Valve *source;   // Pointer to the original Valve object
-    Valve tmpSource; // Copy of the Valve object for modifications
+    IrrigationValve *source;   // Pointer to the original Valve object
+    IrrigationValve tmpSource; // Copy of the Valve object for modifications
 
     uint8_t selectedIndex;
 
@@ -23,7 +23,7 @@ private:
     const CallableMenu *changeModeMenu;
 
     const CallableMenu *setStartTimeMenu;
-    const CallableMenu *setDurationMenu;
+    const CallableMenu *setPeriodMenu;
     const CallableMenu *setFrequencyMenu;
     const CallableMenu *setSoilMoistureLevelMenu;
 
@@ -33,18 +33,18 @@ private:
     const uint8_t getMaxCount() const;
     const CallableMenu *getMenuAtIndex(uint8_t index) const;
 
-    static bool initialActionPerformed; // Static variable to track state
+    static uint8_t initialActionPerformed; // Static variable to track state
 
     void validateTmpSource();
     // Getter for tmpSource
-    static Valve &getTmpSource();
+    static IrrigationValve &getTmpSource();
 
     // Static callback functions
     static bool goBack(Command cmd);
     static bool validateSettings(Command cmd);
     static bool changeMode(Command cmd);
     static bool setStartTime(Command cmd);
-    static bool setDuration(Command cmd);
+    static bool setPeriod(Command cmd);
     static bool setFrequency(Command cmd);
     static bool setSoilMoistureLevel(Command cmd);
 
@@ -59,7 +59,7 @@ public:
     // Static method to get the singleton instance
     static ValveSettingsMenu &getInstance();
 
-    void setSource(Valve *source);
+    void setSource(IrrigationValve *source);
 
     // Implement abstract methods from MenuIterableObject
     const __FlashStringHelper *getName() const override { return nullptr; };

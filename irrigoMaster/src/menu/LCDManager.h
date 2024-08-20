@@ -6,6 +6,7 @@
 #include "Debug.hpp"
 #include "Timer.hpp" // Include the Timer class
 #include "Blinker.h" // Include the Blinker class
+#include "../SystemCache.h"
 
 class LCDManager
 {
@@ -21,6 +22,10 @@ private:
     // Private constructor
     LCDManager();
 
+    inline void bufferize()
+    {
+    }
+
 public:
     // Deleted copy constructor and assignment operator
     LCDManager(const LCDManager &) = delete;
@@ -33,10 +38,30 @@ public:
     void clearRightToLeft(uint8_t col, uint8_t row);
     void clear(int8_t col = -1, int8_t row = -1);
 
+    inline void printRightToLeftFormatted(uint8_t col, uint8_t row, const char *format, ...)
+    {
+        char *buffer = SystemCache::getBuffer(); // Get the shared buffer from SystemCache
+        va_list args;
+        va_start(args, format);                                        // Start processing the variable arguments
+        vsnprintf(buffer, SystemCache::getBufferSize(), format, args); // Format the string into the buffer
+        va_end(args);                                                  // Clean up the variable argument list
+        printRightToLeft(buffer, strlen(buffer), col, row);
+    }
+
     template <typename T>
     inline void printRightToLeft(const T &message, uint8_t messageLength, uint8_t col = 0, uint8_t row = 0)
     {
         print(message, columnsNumber - col - messageLength, row);
+    }
+
+    inline void printFormatted(uint8_t col, uint8_t row, const char *format, ...)
+    {
+        char *buffer = SystemCache::getBuffer(); // Get the shared buffer from SystemCache
+        va_list args;
+        va_start(args, format);                                        // Start processing the variable arguments
+        vsnprintf(buffer, SystemCache::getBufferSize(), format, args); // Format the string into the buffer
+        va_end(args);                                                  // Clean up the variable argument list
+        print(buffer, col, row);                                       // Print the formatted string to the LCD at the specified position
     }
 
     // Print a message at a specific position

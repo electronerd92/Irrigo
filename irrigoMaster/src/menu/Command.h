@@ -1,7 +1,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-enum Command : byte
+enum class Command : uint8_t
 {
     NONE,
     UP,

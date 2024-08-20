@@ -21,8 +21,6 @@ CommandManager *commandManager = nullptr;
 
 void setup()
 {
-  debugLog(F("Starting setup..."));
-
   // Create menu items
   NavigableMenu *mainMenu = new NavigableMenu(F("Main"), 6);
   NavigableMenu *settingsMenu = new NavigableMenu(F("Settings"), 1);
@@ -39,8 +37,6 @@ void setup()
 
   // Create the menu instance
   Menu::createInstance(mainMenu);
-
-  IrrigationSystem::getInstance();
 }
 
 void loop()
@@ -48,6 +44,7 @@ void loop()
   Menu::getInstance().update();
   CommandManager::getInstance().update();
   LCDManager::getInstance().update();
+  IrrigationSystem::getInstance().update();
 }
 
 bool setV1(Command cmd)

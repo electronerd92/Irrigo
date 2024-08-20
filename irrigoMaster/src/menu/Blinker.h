@@ -4,13 +4,14 @@
 #include <Arduino.h>
 #include "../ProjectConfig.h"
 #include "Timer.hpp"
+#include "CustomTypes.h"
+#include "../SystemCache.h"
 #include "Debug.hpp"
 
 class Blinker
 {
 private:
     Timer blinkTimer;   // Timer to handle blinking
-    char *blinkWord;    // The word to blink
     uint8_t col;        // Column position of the blinking word
     uint8_t row;        // Row position of the blinking word
     uint8_t wordLength; // Length of the blinking word
@@ -22,49 +23,54 @@ private:
 
     inline void bufferize(const char *value)
     {
-        strncpy(blinkWord, value, LCD_BLINK_BUFFER_SIZE);
-        blinkWord[LCD_BLINK_BUFFER_SIZE - 1] = '\0'; // Ensure null-termination
+        strncpy(SystemCache::getBuffer(), value, SystemCache::getBufferSize());
+        SystemCache::getBuffer()[SystemCache::getBufferSize() - 1] = '\0'; // Ensure null-termination
     }
 
     inline void bufferize(const __FlashStringHelper *value)
     {
-        strncpy_P(blinkWord, (PGM_P)value, LCD_BLINK_BUFFER_SIZE);
-        blinkWord[LCD_BLINK_BUFFER_SIZE - 1] = '\0'; // Ensure null-termination
+        strncpy_P(SystemCache::getBuffer(), (PGM_P)value, SystemCache::getBufferSize());
+        SystemCache::getBuffer()[SystemCache::getBufferSize() - 1] = '\0'; // Ensure null-termination
     }
 
     inline void bufferize(uint8_t value)
     {
-        snprintf(blinkWord, LCD_BLINK_BUFFER_SIZE, "%u", value);
+        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%u", value);
     }
 
     inline void bufferize(int8_t value)
     {
-        snprintf(blinkWord, LCD_BLINK_BUFFER_SIZE, "%d", value);
+        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%d", value);
     }
 
     inline void bufferize(uint16_t value)
     {
-        snprintf(blinkWord, LCD_BLINK_BUFFER_SIZE, "%u", value);
+        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%u", value);
     }
 
     inline void bufferize(int16_t value)
     {
-        snprintf(blinkWord, LCD_BLINK_BUFFER_SIZE, "%d", value);
+        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%d", value);
     }
 
     inline void bufferize(uint32_t value)
     {
-        snprintf(blinkWord, LCD_BLINK_BUFFER_SIZE, "%lu", value); // Use %lu for uint32_t
+        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%lu", value); // Use %lu for uint32_t
     }
 
     inline void bufferize(int32_t value)
     {
-        snprintf(blinkWord, LCD_BLINK_BUFFER_SIZE, "%ld", value); // Use %ld for int32_t
+        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%ld", value); // Use %ld for int32_t
     }
 
     inline void bufferize(double value)
     {
-        dtostrf(value, 3, 1, blinkWord);
+        dtostrf(value, 3, 1, SystemCache::getBuffer());
+    }
+
+    inline void bufferize(Time_HHMM value)
+    {
+        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%02u:%02u", value.hour, value.minute);
     }
 
     // #endregion
@@ -81,7 +87,7 @@ public:
         bufferize(blinkWord); // Use the bufferize function to convert the word
         this->col = col;
         this->row = row;
-        this->wordLength = strlen(this->blinkWord);
+        this->wordLength = strlen(SystemCache::getBuffer());
         this->isBlinking = true;
         this->blinkState = true;
         this->rightToLeft = rightToLeft;

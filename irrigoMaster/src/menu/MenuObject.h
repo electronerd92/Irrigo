@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "Command.h"
 
-enum MenuObjectType : byte
+enum class MenuObjectType : byte
 {
     ITERABLE,
     CALLABLE
