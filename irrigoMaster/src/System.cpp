@@ -1,10 +1,17 @@
 #include "System.h"
 
 // Initialize the static member
-System* System::instance = nullptr;
+System *System::instance = nullptr;
 
-System& System::getInstance() {
-    if (instance == nullptr) {
+System::System()
+{
+    rtc.begin();
+}
+
+System &System::getInstance()
+{
+    if (instance == nullptr)
+    {
         instance = new System();
     }
     return *instance;

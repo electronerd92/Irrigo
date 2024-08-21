@@ -1,4 +1,5 @@
 #include "IrrigationValve.h"
+#include "Debug.hpp"
 #include "../System.h"
 
 IrrigationValve::IrrigationValve(uint8_t pinNumber) : pin(pinNumber), mode(ValveMode::OFF), startTime{0, 0}, frequency(12), period(1)
@@ -30,7 +31,9 @@ void IrrigationValve::calculateNextIrrigationTime()
     nextIrrigationTime = startDateTime.unixtime();
 
     while (nextIrrigationTime <= System::getInstance().getUnixTime())
-        nextIrrigationTime += frequency * 3600;
+    {
+        nextIrrigationTime += (uint32_t)(frequency) * 3600;
+    }
 }
 
 bool IrrigationValve::canOpen()
@@ -41,7 +44,7 @@ bool IrrigationValve::canOpen()
     uint32_t currentTime = System::getInstance().getUnixTime();
     if (currentTime >= nextIrrigationTime)
     {
-        nextIrrigationTime += frequency * 3600;
+        nextIrrigationTime += (uint32_t)(frequency) * 3600;
         return true;
     }
 

@@ -10,7 +10,7 @@ private:
     static System *instance; // Singleton instance
 
     // Private constructor to prevent instantiation
-    System() = default;
+    System();
 
 public:
     // Deleted copy constructor and assignment operator
