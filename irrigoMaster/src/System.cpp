@@ -9,3 +9,8 @@ System& System::getInstance() {
     }
     return *instance;
 }
+
+uint32_t System::getUnixTime()
+{
+    return rtc.now().unixtime();
+}

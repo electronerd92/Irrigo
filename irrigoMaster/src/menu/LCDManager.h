@@ -22,10 +22,6 @@ private:
     // Private constructor
     LCDManager();
 
-    inline void bufferize()
-    {
-    }
-
 public:
     // Deleted copy constructor and assignment operator
     LCDManager(const LCDManager &) = delete;

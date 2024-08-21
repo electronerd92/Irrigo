@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "IrrigationValve.h"
+#include "Pump.h"
 
 #define VALVES_NUMBER 8
 
@@ -12,8 +13,13 @@ private:
     static IrrigationSystem *instance; // Singleton instance
 
     IrrigationValve valves[VALVES_NUMBER]; // Array of 8 Valve objects
+    Pump pump;
+
+    bool usePump;   // Boolean to indicate whether to use the pump
+    bool isEnabled; // System status
 
     void startWatering(IrrigationValve *valve);
+    void stopWatering(IrrigationValve *valve);
 
     // Private constructor
     IrrigationSystem();
@@ -29,7 +35,14 @@ public:
     // Method to access the Valve objects
     IrrigationValve *getValve(uint8_t index);
 
-    void update();
+    void turnMainValveOn();
+    void turnMainValveOff();
+
+    void disableSystem();
+
+    void setUsePump(bool value);        // Set whether to use the pump or main feed
+
+    void update(); // Main loop method for handling the irrigation logic
 };
 
 #endif // IRRIGATIONSYSTEM_H

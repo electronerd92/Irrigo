@@ -15,6 +15,8 @@ const uint8_t LCD_ROWS = 4;
 const unsigned long LCD_TIME_ON = 60000;      // ms
 const unsigned long LCD_BLINK_INTERVAL = 500; // ms
 
+const uint32_t DELAY_OPENING_CLOSING_VALVE = 200; // ms
+
 // Pinout Irrigation Valves
 const uint8_t PIN_VALVE_1 = 10;
 const uint8_t PIN_VALVE_2 = 11;
@@ -29,5 +31,8 @@ const uint8_t PIN_VALVE_8 = 17;
 const uint8_t PIN_VALVE_EXT = 20;
 const uint8_t PIN_VALVE_PUMP = 18;
 const uint8_t PIN_VALVE_MAIN = 19;
+
+// Pin Pump
+const uint8_t PIN_PUMP = 30;
 
 #endif // PROJECT_CONFIG_H

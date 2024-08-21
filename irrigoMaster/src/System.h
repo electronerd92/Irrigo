@@ -2,6 +2,7 @@
 #define SYSTEM_H
 
 #include <Arduino.h>
+#include "RTClib.h"
 
 class System
 {
@@ -18,6 +19,10 @@ public:
 
     // Method to get the singleton instance
     static System &getInstance();
+
+    RTC_DS3231 rtc;
+
+    uint32_t getUnixTime();
 };
 
 #endif // SYSTEM_H

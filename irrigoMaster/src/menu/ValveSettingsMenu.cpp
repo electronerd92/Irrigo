@@ -230,11 +230,11 @@ bool ValveSettingsMenu::changeMode(Command cmd)
         ValveMode nextMode;
         if (cmd == Command::UP)
         {
-            nextMode = static_cast<ValveMode>((static_cast<uint8_t>(currentMode) + 1) % static_cast<uint8_t>(ValveMode::COUNT));
+            nextMode = static_cast<ValveMode>((static_cast<uint8_t>(currentMode) + 2) % static_cast<uint8_t>(ValveMode::COUNT));
         }
         else if (cmd == Command::DOWN)
         {
-            nextMode = static_cast<ValveMode>((static_cast<uint8_t>(currentMode) + 2) % static_cast<uint8_t>(ValveMode::COUNT)); // (currentMode - 1 + 3) % 3
+            nextMode = static_cast<ValveMode>((static_cast<uint8_t>(currentMode) + 1) % static_cast<uint8_t>(ValveMode::COUNT)); // (currentMode - 1 + 3) % 3
         }
 
         // Set the next mode
@@ -266,11 +266,11 @@ bool ValveSettingsMenu::setStartTime(Command cmd)
         }
         else if (cmd == Command::UP)
         {
-            tmpSource.increaseStartTimeHour();
+            tmpSource.decreaseStartTimeHour();
         }
         else if (cmd == Command::DOWN)
         {
-            tmpSource.decreaseStartTimeHour();
+            tmpSource.increaseStartTimeHour();
         }
     }
 
@@ -283,11 +283,11 @@ bool ValveSettingsMenu::setStartTime(Command cmd)
         }
         if (cmd == Command::UP)
         {
-            tmpSource.increaseStartTimeMinute();
+            tmpSource.decreaseStartTimeMinute();
         }
         else if (cmd == Command::DOWN)
         {
-            tmpSource.decreaseStartTimeMinute();
+            tmpSource.increaseStartTimeMinute();
         }
     }
     else
@@ -318,11 +318,11 @@ bool ValveSettingsMenu::setPeriod(Command cmd)
         }
         if (cmd == Command::UP)
         {
-            tmpSource.increasePeriod();
+            tmpSource.decreasePeriod();
         }
         else if (cmd == Command::DOWN)
         {
-            tmpSource.decreasePeriod();
+            tmpSource.increasePeriod();
         }
     }
     else
@@ -353,11 +353,11 @@ bool ValveSettingsMenu::setFrequency(Command cmd)
         }
         if (cmd == Command::UP)
         {
-            tmpSource.increaseFrequency();
+            tmpSource.decreaseFrequency();
         }
         else if (cmd == Command::DOWN)
         {
-            tmpSource.decreaseFrequency();
+            tmpSource.increaseFrequency();
         }
     }
     else

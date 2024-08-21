@@ -13,7 +13,10 @@ IrrigationSystem::IrrigationSystem() : valves{
                                            IrrigationValveExt(PIN_VALVE_5, PIN_VALVE_EXT),
                                            IrrigationValveExt(PIN_VALVE_6, PIN_VALVE_EXT),
                                            IrrigationValveExt(PIN_VALVE_7, PIN_VALVE_EXT),
-                                           IrrigationValveExt(PIN_VALVE_8, PIN_VALVE_EXT)}
+                                           IrrigationValveExt(PIN_VALVE_8, PIN_VALVE_EXT)},
+                                       pump(PIN_PUMP, PIN_VALVE_PUMP), // setup pump
+                                       usePump(false),                 // Default to using main feed
+                                       isEnabled(false)                // Default status
 {
     pinMode(PIN_VALVE_MAIN, OUTPUT);
 }
@@ -34,12 +37,24 @@ IrrigationValve *IrrigationSystem::getValve(uint8_t index)
     return &valves[index];
 }
 
+// Set whether to use the pump or main feed
+void IrrigationSystem::setUsePump(bool value)
+{
+    usePump = value;
+}
+
 void IrrigationSystem::update()
 {
-    // Check if the system is activated
+    // Check if the system is enabled
+    if (!isEnabled)
+    {
+        return;
+    }
 
-    if (feedWater == pump && pump.hasWater == false)
-        emergencyStop();
+    if (usePump /*&& !tank.hasWater()*/)
+    {
+        disableSystem();
+    }
 
     bool aValveIsOpen = false;
 
@@ -50,7 +65,7 @@ void IrrigationSystem::update()
             aValveIsOpen = true;
             if (valves[i].canClose())
             {
-                stopWatering(valves[i]);
+                stopWatering(&valves[i]);
             }
         }
     }
@@ -72,44 +87,34 @@ void IrrigationSystem::startWatering(IrrigationValve *valve)
 {
     valve->open();
     delay(DELAY_OPENING_CLOSING_VALVE);
-
-    if (feedWater == pump)
-    {
-        pump.start();
-    }
-
-    else
-    {
-        digitalWrite(PIN_VALVE_MAIN, HIGH);
-    }
+    usePump ? pump.start() : turnMainValveOn();
 }
 
 void IrrigationSystem::stopWatering(IrrigationValve *valve)
 {
-
-    if (feedWater == pump)
-    {
-        pump.stop();
-    }
-
-    else
-    {
-        digitalWrite(PIN_VALVE_MAIN, LOW);
-    }
-
+    usePump ? pump.stop() : turnMainValveOff();
     delay(DELAY_OPENING_CLOSING_VALVE);
-
     valve->close();
 }
 
-void IrrigationSystem::emergencyStop
+void IrrigationSystem::disableSystem()
 {
     pump.stop();
-    digitalWrite(PIN_VALVE_MAIN, LOW);
+    turnMainValveOff();
     delay(DELAY_OPENING_CLOSING_VALVE);
 
     for (uint8_t i = 0; i < VALVES_NUMBER; i++)
     {
         valves[i].close();
     }
+}
+
+void IrrigationSystem::turnMainValveOn()
+{
+    digitalWrite(PIN_VALVE_MAIN, HIGH);
+}
+
+void IrrigationSystem::turnMainValveOff()
+{
+    digitalWrite(PIN_VALVE_MAIN, LOW);
 }

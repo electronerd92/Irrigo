@@ -56,13 +56,19 @@ private:
     Time_HHMM startTime;
     uint8_t frequency; // Frequency in hours
     uint8_t period;    // Duration in minutes
+    uint32_t nextIrrigationTime;
+
+    void calculateNextIrrigationTime();
 
 public:
     IrrigationValve(uint8_t pinNumber);
-    // Assuming some methods for Valve class
     virtual void open();
     virtual void close();
     IrrigationValve &operator=(const IrrigationValve &other); // Copy assignment operator
+
+    bool isOpen();
+    bool canOpen();
+    bool canClose();
 
     ValveMode getMode() const;
     void setMode(ValveMode md);

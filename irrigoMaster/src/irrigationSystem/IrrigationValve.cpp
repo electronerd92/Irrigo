@@ -1,9 +1,11 @@
 #include "IrrigationValve.h"
+#include "../System.h"
 
 IrrigationValve::IrrigationValve(uint8_t pinNumber) : pin(pinNumber), mode(ValveMode::OFF), startTime{0, 0}, frequency(12), period(1)
 {
     pinMode(pin, OUTPUT); // Initialize the pin as an OUTPUT
     close();              // Ensure the valve is closed initially
+    calculateNextIrrigationTime();
 }
 
 void IrrigationValve::open()
@@ -11,9 +13,44 @@ void IrrigationValve::open()
     digitalWrite(pin, HIGH); // Command to open the valve
 }
 
+bool IrrigationValve::isOpen()
+{
+    return digitalRead(pin);
+}
+
 void IrrigationValve::close()
 {
     digitalWrite(pin, LOW); // Command to close the valve
+}
+
+void IrrigationValve::calculateNextIrrigationTime()
+{
+    DateTime now = System::getInstance().rtc.now();
+    DateTime startDateTime(now.year(), now.month(), now.day(), startTime.hour, startTime.minute, 0);
+    nextIrrigationTime = startDateTime.unixtime();
+
+    while (nextIrrigationTime <= System::getInstance().getUnixTime())
+        nextIrrigationTime += frequency * 3600;
+}
+
+bool IrrigationValve::canOpen()
+{
+    if (mode == ValveMode::OFF)
+        return false;
+
+    uint32_t currentTime = System::getInstance().getUnixTime();
+    if (currentTime >= nextIrrigationTime)
+    {
+        nextIrrigationTime += frequency * 3600;
+        return true;
+    }
+
+    return false;
+}
+
+bool IrrigationValve::canClose()
+{
+    return true;
 }
 
 IrrigationValve &IrrigationValve::operator=(const IrrigationValve &other)
@@ -25,6 +62,7 @@ IrrigationValve &IrrigationValve::operator=(const IrrigationValve &other)
         startTime = other.startTime;
         frequency = other.frequency;
         period = other.period;
+        nextIrrigationTime = other.nextIrrigationTime;
     }
     return *this;
 }
@@ -46,26 +84,35 @@ Time_HHMM IrrigationValve::getStartTime() const
 void IrrigationValve::setStartTime(Time_HHMM startTime)
 {
     this->startTime = startTime;
+    calculateNextIrrigationTime();
 }
 
 void IrrigationValve::increaseStartTimeHour()
 {
-    startTime.hour = (startTime.hour + 1) % 24;
+    Time_HHMM newTime = startTime;
+    newTime.hour = (startTime.hour + 1) % 24;
+    setStartTime(newTime);
 }
 
 void IrrigationValve::decreaseStartTimeHour()
 {
-    startTime.hour = (startTime.hour == 0) ? 23 : startTime.hour - 1;
+    Time_HHMM newTime = startTime;
+    newTime.hour = (startTime.hour == 0) ? 23 : startTime.hour - 1;
+    setStartTime(newTime);
 }
 
 void IrrigationValve::increaseStartTimeMinute()
 {
-    startTime.minute = (startTime.minute + 1) % 60;
+    Time_HHMM newTime = startTime;
+    newTime.minute = (startTime.minute + 1) % 60;
+    setStartTime(newTime);
 }
 
 void IrrigationValve::decreaseStartTimeMinute()
 {
-    startTime.minute = (startTime.minute == 0) ? 59 : startTime.minute - 1;
+    Time_HHMM newTime = startTime;
+    newTime.minute = (startTime.minute == 0) ? 59 : startTime.minute - 1;
+    setStartTime(newTime);
 }
 
 uint8_t IrrigationValve::getFrequency() const
