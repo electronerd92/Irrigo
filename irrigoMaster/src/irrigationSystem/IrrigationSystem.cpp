@@ -14,9 +14,10 @@ IrrigationSystem::IrrigationSystem() : valves{
                                            IrrigationValveExt(PIN_VALVE_6, PIN_VALVE_EXT),
                                            IrrigationValveExt(PIN_VALVE_7, PIN_VALVE_EXT),
                                            IrrigationValveExt(PIN_VALVE_8, PIN_VALVE_EXT)},
-                                       pump(PIN_PUMP, PIN_VALVE_PUMP), // setup pump
-                                       usePump(false),                 // Default to using main feed
-                                       isEnabled(false)                // Default status
+                                       pump(PIN_PUMP, PIN_VALVE_PUMP),    // setup pump
+                                       tank(PIN_WLS_EMPTY, PIN_WLS_FULL), // setup tank
+                                       usePump(false),                    // Default to using main feed
+                                       isEnabled(false)                   // Default status
 {
     pinMode(PIN_VALVE_MAIN, OUTPUT);
 }
@@ -31,10 +32,20 @@ IrrigationSystem &IrrigationSystem::getInstance()
     return *instance;
 }
 
+uint8_t IrrigationSystem::getValveNumber() const
+{
+    return VALVES_NUMBER;
+}
+
 // Method to access the Valve objects
 IrrigationValve *IrrigationSystem::getValve(uint8_t index)
 {
     return &valves[index];
+}
+
+bool IrrigationSystem::getUsePump()
+{
+    return usePump;
 }
 
 // Set whether to use the pump or main feed
@@ -51,7 +62,7 @@ void IrrigationSystem::update()
         return;
     }
 
-    if (usePump /*&& !tank.hasWater()*/)
+    if (usePump && tank.isEmpty())
     {
         disableSystem();
     }
@@ -97,8 +108,22 @@ void IrrigationSystem::stopWatering(IrrigationValve *valve)
     valve->close();
 }
 
+bool IrrigationSystem::getIsEnabled()
+{
+    return isEnabled;
+}
+
+void IrrigationSystem::setIsEnabled(bool value)
+{
+    if (value == false)
+        disableSystem();
+    else
+        isEnabled = true;
+}
+
 void IrrigationSystem::disableSystem()
 {
+    isEnabled = false;
     pump.stop();
     turnMainValveOff();
     delay(DELAY_OPENING_CLOSING_VALVE);

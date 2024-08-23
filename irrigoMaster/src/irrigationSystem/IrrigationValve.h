@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "CustomTypes.h"
+#include "Timer.hpp"
 
 // #region ValveMode
 
@@ -57,6 +58,7 @@ private:
     uint8_t frequency; // Frequency in hours
     uint8_t period;    // Duration in minutes
     uint32_t nextIrrigationTime;
+    Timer timer;
 
     void calculateNextIrrigationTime();
 
@@ -109,14 +111,14 @@ public:
     // Override the open and close methods
     void open() override
     {
-        digitalWrite(pin, HIGH);       // Open first pin
-        digitalWrite(commonPin, HIGH); // Open second pin
+        IrrigationValve::open();       // Close valve
+        digitalWrite(commonPin, HIGH); // Open first common valve
     }
 
     void close() override
     {
-        digitalWrite(commonPin, LOW); // Close second pin
-        digitalWrite(pin, LOW);       // Close first pin
+        digitalWrite(commonPin, LOW); // Close first common valve
+        IrrigationValve::close();     // Close valve
     }
 };
 

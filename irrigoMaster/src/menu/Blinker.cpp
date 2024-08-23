@@ -12,15 +12,21 @@ Blinker::Blinker()
 {
 }
 
-void Blinker::stopBlinking()
+void Blinker::stopBlinking(bool clear)
 {
     if (!isBlinking)
         return;
     isBlinking = false;
-    // Clear the word if it was blinking
-    if (blinkState)
+    // Clear the word if it's visible and clear is true
+    if (blinkState && clear)
     {
         clearWord();
+    }
+
+    // Print the word if it's not visible and clear is false
+    else if (!blinkState && !clear)
+    {
+        printWord();
     }
 }
 
@@ -30,6 +36,13 @@ void Blinker::clearWord()
     {
         rightToLeft ? LCDManager::getInstance().clearRightToLeft(col + i, row) : LCDManager::getInstance().clear(col + i, row);
     }
+}
+
+void Blinker::printWord()
+{
+    rightToLeft
+        ? LCDManager::getInstance().printRightToLeft(SystemCache::getBuffer(), wordLength, col, row)
+        : LCDManager::getInstance().print(SystemCache::getBuffer(), col, row);
 }
 
 void Blinker::update()
@@ -44,7 +57,7 @@ void Blinker::update()
         else
         {
             // Print the word
-            rightToLeft ? LCDManager::getInstance().printRightToLeft(SystemCache::getBuffer(), wordLength, col, row) : LCDManager::getInstance().print(SystemCache::getBuffer(), col, row);
+            printWord();
         }
         blinkState = !blinkState; // Toggle the blink state
         blinkTimer.start();       // Restart the blink timer

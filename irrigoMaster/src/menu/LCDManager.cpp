@@ -121,7 +121,7 @@ void LCDManager::update()
 }
 
 // Stop blinking the word
-void LCDManager::stopBlinking()
+void LCDManager::stopBlinking(bool clear)
 {
-    blinker.stopBlinking();
+    blinker.stopBlinking(clear);
 }

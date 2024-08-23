@@ -43,9 +43,9 @@ public:
 
     // Start blinking a word at a specific position
     template <typename T>
-    inline void startBlinking(const T &blinkWord, uint8_t col, bool rightToLeft = false)
+    inline void startBlinking(const T &blinkWord, uint8_t col, bool rightToLeft = false, const char *format = nullptr)
     {
-        LCDManager::getInstance().startBlinking(blinkWord, col, cursor, rightToLeft);
+        LCDManager::getInstance().startBlinking(blinkWord, col, cursor, rightToLeft, format);
     }
 };
 

@@ -23,6 +23,11 @@ public:
     RTC_DS3231 rtc;
 
     uint32_t getUnixTime();
+
+    void saveToEEPROM();
+    void loadFromEEPROM();
+    void resetToFactorySettings();
+    uint8_t calculateChecksum(uint16_t startAddr, uint16_t endAddr);
 };
 
 #endif // SYSTEM_H

@@ -19,9 +19,7 @@ private:
 
     const CallableMenu *goBackMenu;
     const CallableMenu *validateSettingsMenu;
-
     const CallableMenu *changeModeMenu;
-
     const CallableMenu *setStartTimeMenu;
     const CallableMenu *setPeriodMenu;
     const CallableMenu *setFrequencyMenu;

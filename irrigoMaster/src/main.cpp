@@ -23,6 +23,7 @@ bool setV6(Command cmd);
 bool setV7(Command cmd);
 bool setV8(Command cmd);
 bool printInfo(Command cmd);
+bool reset(Command cmd);
 
 // Global pointers
 Menu *menu = nullptr;
@@ -30,13 +31,16 @@ CommandManager *commandManager = nullptr;
 
 void setup()
 {
+  debugLog("Starting ...");
   // Create menu items
   NavigableMenu *mainMenu = new NavigableMenu(F("Main"), 6);
   NavigableMenu *settingsMenu = new NavigableMenu(F("Settings"), 8);
   CallableMenu *infoMenu = new CallableMenu(F("Info"), printInfo);
+  CallableMenu *factoryResetMenu = new CallableMenu(F("Factory Reset"), reset);
 
   mainMenu->addSubItem(settingsMenu);
   mainMenu->addSubItem(infoMenu);
+  mainMenu->addSubItem(factoryResetMenu);
 
   ValveSettingsMenu::createInstance(settingsMenu);
 
@@ -150,4 +154,10 @@ bool printInfo(Command cmd)
     return false; // exit
   }
   return true;
+}
+
+bool reset(Command cmd)
+{
+  System::getInstance().resetToFactorySettings();
+  return false;
 }

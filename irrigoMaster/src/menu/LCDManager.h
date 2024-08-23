@@ -86,13 +86,13 @@ public:
 
     // Start blinking a word at a specific position
     template <typename T>
-    inline void startBlinking(const T &blinkWord, uint8_t col, uint8_t row, bool rightToLeft = false)
+    inline void startBlinking(const T &blinkWord, uint8_t col, uint8_t row, bool rightToLeft = false, const char *format = nullptr)
     {
-        blinker.startBlinking(blinkWord, col, row, rightToLeft);
+        blinker.startBlinking(blinkWord, col, row, rightToLeft, format);
     }
 
     // Stop blinking the word
-    void stopBlinking();
+    void stopBlinking(bool clear = true);
 };
 
 #endif // LCDMANAGER_H

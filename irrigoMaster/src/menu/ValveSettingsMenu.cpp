@@ -255,7 +255,7 @@ bool ValveSettingsMenu::setStartTime(Command cmd)
 {
     IrrigationValve &tmpSource = ValveSettingsMenu::getInstance().getTmpSource();
 
-    LCDManager::getInstance().stopBlinking();
+    LCDManager::getInstance().stopBlinking(false);
 
     if (initialActionPerformed == 1)
     {
@@ -296,7 +296,10 @@ bool ValveSettingsMenu::setStartTime(Command cmd)
         initialActionPerformed = 1;
     }
 
-    Menu::getInstance().startBlinking(tmpSource.getStartTime(), 0, true);
+    if (initialActionPerformed == 1)
+        Menu::getInstance().startBlinking(tmpSource.getStartTime().hour, 3, true, "%02u");
+    else
+        Menu::getInstance().startBlinking(tmpSource.getStartTime().minute, 0, true, "%02u");
 
     return true;
 }

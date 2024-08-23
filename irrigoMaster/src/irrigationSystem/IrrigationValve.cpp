@@ -2,7 +2,13 @@
 #include "Debug.hpp"
 #include "../System.h"
 
-IrrigationValve::IrrigationValve(uint8_t pinNumber) : pin(pinNumber), mode(ValveMode::OFF), startTime{0, 0}, frequency(12), period(1)
+IrrigationValve::IrrigationValve(uint8_t pinNumber)
+    : pin(pinNumber),
+      mode(ValveMode::OFF),
+      startTime{0, 0},
+      frequency(12),
+      period(1),
+      timer((uint32_t)(period) * 60000)
 {
     pinMode(pin, OUTPUT); // Initialize the pin as an OUTPUT
     close();              // Ensure the valve is closed initially
@@ -11,6 +17,7 @@ IrrigationValve::IrrigationValve(uint8_t pinNumber) : pin(pinNumber), mode(Valve
 
 void IrrigationValve::open()
 {
+    timer.updateInterval((uint32_t)(period) * 60000);
     digitalWrite(pin, HIGH); // Command to open the valve
 }
 
@@ -53,7 +60,7 @@ bool IrrigationValve::canOpen()
 
 bool IrrigationValve::canClose()
 {
-    return true;
+    return timer.timeout();
 }
 
 IrrigationValve &IrrigationValve::operator=(const IrrigationValve &other)

@@ -21,70 +21,87 @@ private:
 
     // #region bufferize
 
-    inline void bufferize(const char *value)
+    inline void bufferize(const char *value, const char *format = nullptr)
     {
         strncpy(SystemCache::getBuffer(), value, SystemCache::getBufferSize());
         SystemCache::getBuffer()[SystemCache::getBufferSize() - 1] = '\0'; // Ensure null-termination
     }
 
-    inline void bufferize(const __FlashStringHelper *value)
+    inline void bufferize(const __FlashStringHelper *value, const char *format = nullptr)
     {
         strncpy_P(SystemCache::getBuffer(), (PGM_P)value, SystemCache::getBufferSize());
         SystemCache::getBuffer()[SystemCache::getBufferSize() - 1] = '\0'; // Ensure null-termination
     }
 
-    inline void bufferize(uint8_t value)
+    inline void bufferize(uint8_t value, const char *format = nullptr)
     {
-        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%u", value);
+        if (format)
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), format, value);
+        else
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%u", value);
     }
 
-    inline void bufferize(int8_t value)
+    inline void bufferize(int8_t value, const char *format = nullptr)
     {
-        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%d", value);
+        if (format)
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), format, value);
+        else
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%d", value);
     }
 
-    inline void bufferize(uint16_t value)
+    inline void bufferize(uint16_t value, const char *format = nullptr)
     {
-        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%u", value);
+        if (format)
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), format, value);
+        else
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%u", value);
     }
 
-    inline void bufferize(int16_t value)
+    inline void bufferize(int16_t value, const char *format = nullptr)
     {
-        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%d", value);
+        if (format)
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), format, value);
+        else
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%d", value);
     }
 
-    inline void bufferize(uint32_t value)
+    inline void bufferize(uint32_t value, const char *format = nullptr)
     {
-        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%lu", value); // Use %lu for uint32_t
+        if (format)
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), format, value);
+        else
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%lu", value); // Use %lu for uint32_t
     }
 
-    inline void bufferize(int32_t value)
+    inline void bufferize(int32_t value, const char *format = nullptr)
     {
-        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%ld", value); // Use %ld for int32_t
+        if (format)
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), format, value);
+        else
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%ld", value); // Use %ld for int32_t
     }
 
-    inline void bufferize(double value)
+    inline void bufferize(double value, const char *format = nullptr)
     {
-        dtostrf(value, 3, 1, SystemCache::getBuffer());
-    }
-
-    inline void bufferize(Time_HHMM value)
-    {
-        snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), "%02u:%02u", value.hour, value.minute);
+        if (format)
+            snprintf(SystemCache::getBuffer(), SystemCache::getBufferSize(), format, value);
+        else
+            dtostrf(value, 3, 1, SystemCache::getBuffer());
     }
 
     // #endregion
 
-    // Private method to clear the word from the display
+    // Private method to clear and print the word from the display
     void clearWord();
+    void printWord();
 
 public:
     Blinker();
 
     template <typename T>
-    inline void startBlinking(const T &blinkWord, uint8_t col, uint8_t row, bool rightToLeft = false)
+    inline void startBlinking(const T &blinkWord, uint8_t col, uint8_t row, bool rightToLeft = false, const char *format = nullptr)
     {
-        bufferize(blinkWord); // Use the bufferize function to convert the word
+        bufferize(blinkWord, format);
         this->col = col;
         this->row = row;
         this->wordLength = strlen(SystemCache::getBuffer());
@@ -95,7 +112,7 @@ public:
     }
 
     // Stop blinking the word
-    void stopBlinking();
+    void stopBlinking(bool clear = true);
 
     // Update method to manage the blinking state
     void update();

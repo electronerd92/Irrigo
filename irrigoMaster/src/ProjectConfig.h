@@ -1,6 +1,11 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
+// EEPROM
+
+const uint8_t EEPROM_VERSION_HIGH = 1;
+const uint8_t EEPROM_VERSION_LOW = 0;
+
 const uint8_t BUFFER_SIZE = 12;
 
 // Define pinout for the rotary
@@ -34,5 +39,9 @@ const uint8_t PIN_VALVE_MAIN = 19;
 
 // Pin Pump
 const uint8_t PIN_PUMP = 30;
+
+// Pin Water Level Sensor for tank
+const uint8_t PIN_WLS_EMPTY = 31;
+const uint8_t PIN_WLS_FULL = 32;
 
 #endif // PROJECT_CONFIG_H
