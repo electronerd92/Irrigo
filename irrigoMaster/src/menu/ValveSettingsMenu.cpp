@@ -6,7 +6,7 @@
 // Initialize the singleton instance pointer to nullptr
 ValveSettingsMenu *ValveSettingsMenu::instance = nullptr;
 // Initialize static state variables
-uint8_t ValveSettingsMenu::initialActionPerformed = 0;
+uint8_t ValveSettingsMenu::actionIndex = 0;
 
 // Private constructor
 ValveSettingsMenu::ValveSettingsMenu(MenuIterableObject *parent)
@@ -214,12 +214,12 @@ bool ValveSettingsMenu::changeMode(Command cmd)
     LCDManager::getInstance().stopBlinking();
 
     // Check if initial actions have been performed
-    if (initialActionPerformed)
+    if (actionIndex)
     {
         // If the command is SELECT, skip further processing
         if (cmd == Command::SELECT)
         {
-            initialActionPerformed = 0;
+            actionIndex = 0;
             return false;
         }
 
@@ -244,7 +244,7 @@ bool ValveSettingsMenu::changeMode(Command cmd)
     else
     {
         // Perform initial actions
-        initialActionPerformed = 1;
+        actionIndex = 1;
     }
 
     Menu::getInstance().startBlinking(valveModeToString(tmpSource.getMode()), 0, true);
@@ -257,12 +257,12 @@ bool ValveSettingsMenu::setStartTime(Command cmd)
 
     LCDManager::getInstance().stopBlinking(false);
 
-    if (initialActionPerformed == 1)
+    if (actionIndex == 1)
     {
         // If the command is SELECT, skip further processing
         if (cmd == Command::SELECT)
         {
-            initialActionPerformed = 2;
+            actionIndex = 2;
         }
         else if (cmd == Command::UP)
         {
@@ -274,11 +274,11 @@ bool ValveSettingsMenu::setStartTime(Command cmd)
         }
     }
 
-    else if (initialActionPerformed == 2)
+    else if (actionIndex == 2)
     {
         if (cmd == Command::SELECT)
         {
-            initialActionPerformed = 0;
+            actionIndex = 0;
             return false;
         }
         if (cmd == Command::UP)
@@ -293,10 +293,10 @@ bool ValveSettingsMenu::setStartTime(Command cmd)
     else
     {
         // Perform initial actions
-        initialActionPerformed = 1;
+        actionIndex = 1;
     }
 
-    if (initialActionPerformed == 1)
+    if (actionIndex == 1)
         Menu::getInstance().startBlinking(tmpSource.getStartTime().hour, 3, true, "%02u");
     else
         Menu::getInstance().startBlinking(tmpSource.getStartTime().minute, 0, true, "%02u");
@@ -311,12 +311,12 @@ bool ValveSettingsMenu::setPeriod(Command cmd)
     LCDManager::getInstance().stopBlinking();
 
     // Check if initial actions have been performed
-    if (initialActionPerformed)
+    if (actionIndex)
     {
         // If the command is SELECT, skip further processing
         if (cmd == Command::SELECT)
         {
-            initialActionPerformed = 0;
+            actionIndex = 0;
             return false;
         }
         if (cmd == Command::UP)
@@ -331,7 +331,7 @@ bool ValveSettingsMenu::setPeriod(Command cmd)
     else
     {
         // Perform initial actions
-        initialActionPerformed = 1;
+        actionIndex = 1;
     }
 
     Menu::getInstance().startBlinking(tmpSource.getPeriod(), 0, true);
@@ -346,12 +346,12 @@ bool ValveSettingsMenu::setFrequency(Command cmd)
     LCDManager::getInstance().stopBlinking();
 
     // Check if initial actions have been performed
-    if (initialActionPerformed)
+    if (actionIndex)
     {
         // If the command is SELECT, skip further processing
         if (cmd == Command::SELECT)
         {
-            initialActionPerformed = 0;
+            actionIndex = 0;
             return false;
         }
         if (cmd == Command::UP)
@@ -366,7 +366,7 @@ bool ValveSettingsMenu::setFrequency(Command cmd)
     else
     {
         // Perform initial actions
-        initialActionPerformed = 1;
+        actionIndex = 1;
     }
 
     Menu::getInstance().startBlinking(tmpSource.getFrequency(), 0, true);

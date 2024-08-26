@@ -33,7 +33,7 @@ void IrrigationValve::close()
 
 void IrrigationValve::calculateNextIrrigationTime()
 {
-    DateTime now = System::getInstance().rtc.now();
+    DateTime now = System::getInstance().getCurrentDateTime();
     DateTime startDateTime(now.year(), now.month(), now.day(), startTime.hour, startTime.minute, 0);
     nextIrrigationTime = startDateTime.unixtime();
 

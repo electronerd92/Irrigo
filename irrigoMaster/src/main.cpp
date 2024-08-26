@@ -5,159 +5,63 @@
 #include "System.h"
 #include "Debug.hpp"
 #include "menu/Menu.h"
+#include "menu/MenuCallbacks.h"
 #include "menu/NavigableMenu.h"
 #include "menu/CallableMenu.h"
-#include "menu/Command.h"
 #include "menu/CommandManager.h"
 #include "menu/ValveSettingsMenu.h"
 #include "menu/LCDManager.h"
 #include "irrigationSystem/IrrigationSystem.h"
 
-void printValveSettingsMenu();
-bool setV1(Command cmd);
-bool setV2(Command cmd);
-bool setV3(Command cmd);
-bool setV4(Command cmd);
-bool setV5(Command cmd);
-bool setV6(Command cmd);
-bool setV7(Command cmd);
-bool setV8(Command cmd);
-bool printInfo(Command cmd);
-bool reset(Command cmd);
-
-// Global pointers
-Menu *menu = nullptr;
-CommandManager *commandManager = nullptr;
+void initializeMenus();
 
 void setup()
 {
   debugLog("Starting ...");
-  // Create menu items
-  NavigableMenu *mainMenu = new NavigableMenu(F("Main"), 6);
-  NavigableMenu *settingsMenu = new NavigableMenu(F("Settings"), 8);
-  CallableMenu *infoMenu = new CallableMenu(F("Info"), printInfo);
-  CallableMenu *factoryResetMenu = new CallableMenu(F("Factory Reset"), reset);
-
-  mainMenu->addSubItem(settingsMenu);
-  mainMenu->addSubItem(infoMenu);
-  mainMenu->addSubItem(factoryResetMenu);
-
-  ValveSettingsMenu::createInstance(settingsMenu);
-
-  CallableMenu *settingsV1 = new CallableMenu(F("V1 settings"), setV1);
-  CallableMenu *settingsV2 = new CallableMenu(F("V2 settings"), setV2);
-  CallableMenu *settingsV3 = new CallableMenu(F("V3 settings"), setV3);
-  CallableMenu *settingsV4 = new CallableMenu(F("V4 settings"), setV4);
-  CallableMenu *settingsV5 = new CallableMenu(F("V5 settings"), setV5);
-  CallableMenu *settingsV6 = new CallableMenu(F("V6 settings"), setV6);
-  CallableMenu *settingsV7 = new CallableMenu(F("V7 settings"), setV7);
-  CallableMenu *settingsV8 = new CallableMenu(F("V8 settings"), setV8);
-
-  settingsMenu->addSubItem(settingsV1);
-  settingsMenu->addSubItem(settingsV2);
-  settingsMenu->addSubItem(settingsV3);
-  settingsMenu->addSubItem(settingsV4);
-  settingsMenu->addSubItem(settingsV5);
-  settingsMenu->addSubItem(settingsV6);
-  settingsMenu->addSubItem(settingsV7);
-  settingsMenu->addSubItem(settingsV8);
-
-  // Create the menu instance
-  Menu::createInstance(mainMenu);
+  initializeMenus();
 }
 
 void loop()
 {
+  System::getInstance().update();
   Menu::getInstance().update();
   CommandManager::getInstance().update();
   LCDManager::getInstance().update();
   IrrigationSystem::getInstance().update();
 }
 
-void printValveSettingsMenu()
+// Initialize menus with callbacks from MenuCallbacks
+void initializeMenus()
 {
-  Menu::getInstance().saveDisplayState();
-  Menu::getInstance().setCurrentMenuItem(&ValveSettingsMenu::getInstance());
-}
+  // Create menu items
+  NavigableMenu *mainMenu = new NavigableMenu(F("Main"), 6);
+  NavigableMenu *settingsMenu = new NavigableMenu(F("Settings"), 2);
+  CallableMenu *infoMenu = new CallableMenu(F("Info"), &MenuCallbacks::printInfo);
+  CallableMenu *factoryResetMenu = new CallableMenu(F("Factory Reset"), &MenuCallbacks::resetToFactorySettings);
 
-bool setV1(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(0));
-  printValveSettingsMenu();
-  return false;
-}
+  mainMenu->addSubItem(settingsMenu);
+  mainMenu->addSubItem(infoMenu);
+  mainMenu->addSubItem(factoryResetMenu);
 
-bool setV2(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(1));
-  printValveSettingsMenu();
-  return false;
-}
+  NavigableMenu *settingsValvesMenu = new NavigableMenu(F("Valves"), 8);
+  NavigableMenu *settingsSystemMenu = new NavigableMenu(F("System"), 2);
 
-bool setV3(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(2));
-  printValveSettingsMenu();
-  return false;
-}
+  settingsMenu->addSubItem(settingsValvesMenu);
+  settingsMenu->addSubItem(settingsSystemMenu);
 
-bool setV4(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(3));
-  printValveSettingsMenu();
-  return false;
-}
+  ValveSettingsMenu::createInstance(settingsMenu);
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V1"), &MenuCallbacks::selectValve1));
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V2"), &MenuCallbacks::selectValve2));
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V3"), &MenuCallbacks::selectValve3));
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V4"), &MenuCallbacks::selectValve4));
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V5"), &MenuCallbacks::selectValve5));
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V6"), &MenuCallbacks::selectValve6));
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V7"), &MenuCallbacks::selectValve7));
+  settingsValvesMenu->addSubItem(new CallableMenu(F("V8"), &MenuCallbacks::selectValve8));
 
-bool setV5(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(4));
-  printValveSettingsMenu();
-  return false;
-}
+  settingsSystemMenu->addSubItem(new CallableMenu(F("Date"), &MenuCallbacks::setDate));
+  settingsSystemMenu->addSubItem(new CallableMenu(F("Time"), &MenuCallbacks::setTime));
 
-bool setV6(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(5));
-  printValveSettingsMenu();
-  return false;
-}
-
-bool setV7(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(6));
-  printValveSettingsMenu();
-  return false;
-}
-
-bool setV8(Command cmd)
-{
-  ValveSettingsMenu::getInstance().setSource(IrrigationSystem::getInstance().getValve(7));
-  printValveSettingsMenu();
-  return false;
-}
-
-bool printInfo(Command cmd)
-{
-  static bool firstTime = true;
-
-  if (firstTime)
-  {
-    firstTime = false;
-    LCDManager::getInstance().clear();
-    LCDManager::getInstance().print(F("Info..Press enter"));
-    return true;
-  }
-
-  if (cmd == Command::SELECT && !firstTime)
-  {
-    firstTime = true;
-    return false; // exit
-  }
-  return true;
-}
-
-bool reset(Command cmd)
-{
-  System::getInstance().resetToFactorySettings();
-  return false;
+  // Create the menu instance
+  Menu::createInstance(mainMenu);
 }

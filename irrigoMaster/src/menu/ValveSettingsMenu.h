@@ -15,7 +15,7 @@ private:
     IrrigationValve *source;   // Pointer to the original Valve object
     IrrigationValve tmpSource; // Copy of the Valve object for modifications
 
-    uint8_t selectedIndex;
+    uint8_t selectedIndex; 
 
     const CallableMenu *goBackMenu;
     const CallableMenu *validateSettingsMenu;
@@ -31,7 +31,7 @@ private:
     const uint8_t getMaxCount() const;
     const CallableMenu *getMenuAtIndex(uint8_t index) const;
 
-    static uint8_t initialActionPerformed; // Static variable to track state
+    static uint8_t actionIndex; // Static variable to track state
 
     void validateTmpSource();
     // Getter for tmpSource

@@ -1,8 +1,8 @@
 #include "System.h"
 #include <EEPROM.h>
-#include <avr/wdt.h>
 #include "ProjectConfig.h"
 #include "irrigationSystem/IrrigationSystem.h"
+#include "Debug.hpp"
 
 // Initialize the static member
 System *System::instance = nullptr;
@@ -10,6 +10,9 @@ System *System::instance = nullptr;
 System::System()
 {
     rtc.begin();
+    DateTime now = rtc.now();
+    lastCheckedDay = now.day(); // Initialize last checked day
+    dstApplied = isDST(now);    // Check if DST should be applied now
 }
 
 System &System::getInstance()
@@ -25,6 +28,187 @@ uint32_t System::getUnixTime()
 {
     return rtc.now().unixtime();
 }
+
+void System::setUnixTime(uint32_t unixTime)
+{
+    rtc.adjust(DateTime(unixTime));
+}
+
+DateTime System::getCurrentDateTime()
+{
+    return rtc.now();
+}
+
+// Utility function to calculate the number of days in a given month
+uint8_t System::daysInMonth(uint16_t year, uint8_t month)
+{
+    if (month == 2)
+    {
+        // Check for leap year
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+        {
+            return 29;
+        }
+        else
+        {
+            return 28;
+        }
+    }
+    else if (month == 4 || month == 6 || month == 9 || month == 11)
+    {
+        return 30;
+    }
+    else
+    {
+        return 31;
+    }
+}
+
+// #region RTC settings
+void System::increaseDay()
+{
+    DateTime now = rtc.now();
+    uint8_t day = now.day() + 1;
+    uint8_t maxDay = daysInMonth(now.year(), now.month());
+
+    if (day > maxDay)
+    {
+        day = 1;
+    }
+
+    DateTime newDateTime = DateTime(now.year(), now.month(), day, now.hour(), now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::decreaseDay()
+{
+    DateTime now = rtc.now();
+    uint8_t day = now.day() - 1;
+    uint8_t maxDay = daysInMonth(now.year(), now.month());
+
+    if (day < 1)
+    {
+        day = maxDay;
+    }
+
+    DateTime newDateTime = DateTime(now.year(), now.month(), day, now.hour(), now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::increaseMonth()
+{
+    DateTime now = rtc.now();
+    uint8_t month = (now.month() % 12) + 1;
+    uint16_t year = now.year();
+
+    uint8_t maxDay = daysInMonth(year, month);
+    uint8_t day = min(now.day(), maxDay);
+
+    DateTime newDateTime = DateTime(year, month, day, now.hour(), now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::decreaseMonth()
+{
+    DateTime now = rtc.now();
+    uint8_t month = (now.month() + 10) % 12 + 1;
+    uint16_t year = now.year();
+
+    uint8_t maxDay = daysInMonth(year, month);
+    uint8_t day = min(now.day(), maxDay);
+
+    DateTime newDateTime = DateTime(year, month, day, now.hour(), now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::increaseYear()
+{
+    DateTime now = rtc.now();
+    DateTime newDateTime = DateTime(now.year() + 1, now.month(), now.day(), now.hour(), now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::decreaseYear()
+{
+    DateTime now = rtc.now();
+    DateTime newDateTime = DateTime(now.year() - 1, now.month(), now.day(), now.hour(), now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::increaseHour()
+{
+    DateTime now = rtc.now();
+    uint8_t hour = (now.hour() + 1) % 24;
+
+    DateTime newDateTime = DateTime(now.year(), now.month(), now.day(), hour, now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::decreaseHour()
+{
+    DateTime now = rtc.now();
+    uint8_t hour = (now.hour() + 23) % 24;
+
+    DateTime newDateTime = DateTime(now.year(), now.month(), now.day(), hour, now.minute(), now.second());
+    rtc.adjust(newDateTime);
+}
+
+void System::increaseMinute()
+{
+    DateTime now = rtc.now();
+    uint8_t minute = (now.minute() + 1) % 60;
+
+    DateTime newDateTime = DateTime(now.year(), now.month(), now.day(), now.hour(), minute, 0);
+    rtc.adjust(newDateTime);
+}
+
+void System::decreaseMinute()
+{
+    DateTime now = rtc.now();
+    uint8_t minute = (now.minute() + 59) % 60;
+
+    DateTime newDateTime = DateTime(now.year(), now.month(), now.day(), now.hour(), minute, 0);
+    rtc.adjust(newDateTime);
+}
+// #endregion RTC settings
+
+// #region Daylight Saving Time
+void System::updateDST()
+{
+    DateTime now = rtc.now();
+    bool currentlyDST = isDST(now);
+
+    // Only adjust if there is a transition
+    if (currentlyDST && !dstApplied)
+    {
+        rtc.adjust(DateTime(now.unixtime() + 3600)); // Add 3600 seconds (1 hour)
+        dstApplied = true;                           // Mark DST as applied
+    }
+    else if (!currentlyDST && dstApplied)
+    {
+        rtc.adjust(DateTime(now.unixtime() - 3600)); // Subtract 3600 seconds (1 hour)
+        dstApplied = false;                          // Mark DST as not applied
+    }
+}
+
+bool System::isDST(DateTime now)
+{
+    uint8_t lastSundayMarch = getLastSunday(3, now.year());
+    uint8_t lastSundayOctober = getLastSunday(10, now.year());
+
+    DateTime dstStart(now.year(), 3, lastSundayMarch, 2, 0, 0);
+    DateTime dstEnd(now.year(), 10, lastSundayOctober, 3, 0, 0);
+
+    return now >= dstStart && now < dstEnd;
+}
+
+uint8_t System::getLastSunday(uint8_t month, uint16_t year)
+{
+    DateTime lastDayOfMonth(year, month, 31);
+    uint8_t weekday = lastDayOfMonth.dayOfTheWeek();
+    return 31 - weekday; // 31st minus the day of the week gives the last Sunday
+}
+// #endregion Daylight Saving Time
 
 void System::saveToEEPROM()
 {
@@ -133,4 +317,16 @@ void System::resetToFactorySettings()
     EEPROM.update(1, 0); // Set the version/flag byte to 0x00
     // software reset
     asm volatile("  jmp 0"); // Jump to the start of the program (address 0)
+}
+
+void System::update()
+{
+    DateTime now = rtc.now();
+
+    if (now.day() != lastCheckedDay)
+    {
+        // Run this check only once per day
+        lastCheckedDay = now.day(); // Update the last checked day
+        updateDST();                // Check and apply or remove DST if necessary
+    }
 }
