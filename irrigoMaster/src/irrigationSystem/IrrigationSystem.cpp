@@ -6,14 +6,14 @@ IrrigationSystem *IrrigationSystem::instance = nullptr;
 
 // Private constructor
 IrrigationSystem::IrrigationSystem() : valves{
-                                           IrrigationValve(PIN_VALVE_1),
-                                           IrrigationValve(PIN_VALVE_2),
-                                           IrrigationValve(PIN_VALVE_3),
-                                           IrrigationValve(PIN_VALVE_4),
-                                           IrrigationValveExt(PIN_VALVE_5, PIN_VALVE_EXT),
-                                           IrrigationValveExt(PIN_VALVE_6, PIN_VALVE_EXT),
-                                           IrrigationValveExt(PIN_VALVE_7, PIN_VALVE_EXT),
-                                           IrrigationValveExt(PIN_VALVE_8, PIN_VALVE_EXT)},
+                                           IrrigationValve(ID_VALVE_1, PIN_VALVE_1),
+                                           IrrigationValve(ID_VALVE_2, PIN_VALVE_2),
+                                           IrrigationValve(ID_VALVE_3, PIN_VALVE_3),
+                                           IrrigationValve(ID_VALVE_4, PIN_VALVE_4),
+                                           IrrigationValveExt(ID_VALVE_5, PIN_VALVE_5, PIN_VALVE_EXT),
+                                           IrrigationValveExt(ID_VALVE_6, PIN_VALVE_6, PIN_VALVE_EXT),
+                                           IrrigationValveExt(ID_VALVE_7, PIN_VALVE_7, PIN_VALVE_EXT),
+                                           IrrigationValveExt(ID_VALVE_8, PIN_VALVE_8, PIN_VALVE_EXT)},
                                        pump(PIN_PUMP, PIN_VALVE_PUMP),    // setup pump
                                        tank(PIN_WLS_EMPTY, PIN_WLS_FULL), // setup tank
                                        usePump(false),                    // Default to using main feed
@@ -115,10 +115,16 @@ bool IrrigationSystem::getIsEnabled()
 
 void IrrigationSystem::setIsEnabled(bool value)
 {
-    if (value == false)
-        disableSystem();
-    else
-        isEnabled = true;
+    value ? enableSystem() : disableSystem();
+}
+
+void IrrigationSystem::enableSystem()
+{
+    isEnabled = true;
+    for (uint8_t i = 0; i < VALVES_NUMBER; i++)
+    {
+        valves[i].updateStartTime();
+    }
 }
 
 void IrrigationSystem::disableSystem()

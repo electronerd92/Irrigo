@@ -10,6 +10,7 @@
 #include "menu/CallableMenu.h"
 #include "menu/CommandManager.h"
 #include "menu/ValveSettingsMenu.h"
+#include "menu/ShowNextIrrigationMenu.h"
 #include "menu/LCDManager.h"
 #include "irrigationSystem/IrrigationSystem.h"
 
@@ -19,6 +20,7 @@ void setup()
 {
   debugLog("Starting ...");
   initializeMenus();
+  System::getInstance().loadFromEEPROM();
 }
 
 void loop()
@@ -34,22 +36,20 @@ void loop()
 void initializeMenus()
 {
   // Create menu items
-  NavigableMenu *mainMenu = new NavigableMenu(F("Main"), 6);
+  NavigableMenu *mainMenu = new NavigableMenu(F("Main"), 2);
   NavigableMenu *settingsMenu = new NavigableMenu(F("Settings"), 2);
-  CallableMenu *infoMenu = new CallableMenu(F("Info"), &MenuCallbacks::printInfo);
-  CallableMenu *factoryResetMenu = new CallableMenu(F("Factory Reset"), &MenuCallbacks::resetToFactorySettings);
+  NavigableMenu *infoMenu = new NavigableMenu(F("Info"), 2);
 
   mainMenu->addSubItem(settingsMenu);
   mainMenu->addSubItem(infoMenu);
-  mainMenu->addSubItem(factoryResetMenu);
 
-  NavigableMenu *settingsValvesMenu = new NavigableMenu(F("Valves"), 8);
-  NavigableMenu *settingsSystemMenu = new NavigableMenu(F("System"), 2);
+  NavigableMenu *settingsValvesMenu = new NavigableMenu(F("Valves settings"), 8);
+  NavigableMenu *settingsSystemMenu = new NavigableMenu(F("System settings"), 5);
 
   settingsMenu->addSubItem(settingsValvesMenu);
   settingsMenu->addSubItem(settingsSystemMenu);
 
-  ValveSettingsMenu::createInstance(settingsMenu);
+  ValveSettingsMenu::createInstance(settingsValvesMenu);
   settingsValvesMenu->addSubItem(new CallableMenu(F("V1"), &MenuCallbacks::selectValve1));
   settingsValvesMenu->addSubItem(new CallableMenu(F("V2"), &MenuCallbacks::selectValve2));
   settingsValvesMenu->addSubItem(new CallableMenu(F("V3"), &MenuCallbacks::selectValve3));
@@ -61,6 +61,13 @@ void initializeMenus()
 
   settingsSystemMenu->addSubItem(new CallableMenu(F("Date"), &MenuCallbacks::setDate));
   settingsSystemMenu->addSubItem(new CallableMenu(F("Time"), &MenuCallbacks::setTime));
+  settingsSystemMenu->addSubItem(new CallableMenu(F("Save Settings"), &MenuCallbacks::saveSettings));
+  settingsSystemMenu->addSubItem(new CallableMenu(F("Load Settings"), &MenuCallbacks::loadSettings));
+  settingsSystemMenu->addSubItem(new CallableMenu(F("Factory Reset"), &MenuCallbacks::resetToFactorySettings));
+
+  ShowNextIrrigationMenu::createInstance(infoMenu);
+  infoMenu->addSubItem(new CallableMenu(F("DataTime"), &MenuCallbacks::showDataTime));
+  infoMenu->addSubItem(new CallableMenu(F("Next Irrigation"), &MenuCallbacks::setShowNextIrrigationMenu));
 
   // Create the menu instance
   Menu::createInstance(mainMenu);

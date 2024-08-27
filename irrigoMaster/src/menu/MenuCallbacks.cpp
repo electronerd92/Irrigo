@@ -1,9 +1,12 @@
 #include "MenuCallbacks.h"
 #include "Menu.h"
 #include "ValveSettingsMenu.h"
+#include "ShowNextIrrigationMenu.h"
 #include "../irrigationSystem/IrrigationSystem.h"
 #include "LCDManager.h"
 #include "../System.h"
+#include "CommandManager.h"
+#include "ConfirmationMenu.h"
 
 uint8_t MenuCallbacks::actionIndex = 0;
 
@@ -72,29 +75,31 @@ bool MenuCallbacks::selectValve8(Command cmd)
 
 // #endregion Valve settings
 
-bool MenuCallbacks::printInfo(Command cmd)
+bool MenuCallbacks::showDataTime(Command cmd)
 {
-    static bool firstTime = true;
-
-    if (firstTime)
+    if (actionIndex == 0)
     {
-        firstTime = false;
         LCDManager::getInstance().clear();
-        LCDManager::getInstance().print(F("Info..Press enter"));
+        actionIndex = 1;
+    }
+    if (cmd == Command::SYSTEM || actionIndex == 1)
+    {
+        actionIndex = 2;
+        DateTime dateTime = System::getInstance().getCurrentDateTime();
+        LCDManager::getInstance().printFormatted(0, 0, "%02u/%02u/%04d", dateTime.day(), dateTime.month(), dateTime.year());
+        LCDManager::getInstance().printFormatted(0, 1, "%02u:%02u:%02u", dateTime.hour(), dateTime.minute(), dateTime.second());
+        CommandManager::getInstance().setSystemCommand();
         return true;
     }
 
-    if (cmd == Command::SELECT && !firstTime)
-    {
-        firstTime = true;
-        return false; // exit
-    }
-    return true;
+    actionIndex = 0;
+    return false;
 }
 
-bool MenuCallbacks::resetToFactorySettings(Command cmd)
+bool MenuCallbacks::setShowNextIrrigationMenu(Command cmd)
 {
-    System::getInstance().resetToFactorySettings();
+    Menu::getInstance().saveDisplayState();
+    Menu::getInstance().setCurrentMenuItem(&ShowNextIrrigationMenu::getInstance());
     return false;
 }
 
@@ -175,57 +180,104 @@ bool MenuCallbacks::setDate(Command cmd)
 
 bool MenuCallbacks::setTime(Command cmd)
 {
-    LCDManager::getInstance().stopBlinking(false);
-
-    if (actionIndex == 1)
+    if (cmd == Command::SYSTEM)
     {
-        if (cmd == Command::SELECT)
-        {
-            actionIndex = 2;
-        }
-        else if (cmd == Command::UP)
-        {
-            System::getInstance().decreaseHour();
-        }
-        else if (cmd == Command::DOWN)
-        {
-            System::getInstance().increaseHour();
-        }
+        char buffer[3];
+        snprintf(buffer, sizeof(buffer), "%02u", System::getInstance().getCurrentDateTime().second());
+        LCDManager::getInstance().print(buffer, 6, 1);
     }
 
-    else if (actionIndex == 2)
+    else
     {
-        if (cmd == Command::SELECT)
+        LCDManager::getInstance().stopBlinking(false);
+
+        if (actionIndex == 1)
         {
+            if (cmd == Command::SELECT)
+            {
+                actionIndex = 2;
+            }
+            else if (cmd == Command::UP)
+            {
+                System::getInstance().decreaseHour();
+            }
+            else if (cmd == Command::DOWN)
+            {
+                System::getInstance().increaseHour();
+            }
+        }
+
+        else if (actionIndex == 2)
+        {
+            if (cmd == Command::SELECT)
+            {
+                actionIndex = 0;
+                return false;
+            }
+            if (cmd == Command::UP)
+            {
+                System::getInstance().decreaseMinute();
+            }
+            else if (cmd == Command::DOWN)
+            {
+                System::getInstance().increaseMinute();
+            }
+        }
+
+        else
+        {
+            // Perform initial actions
+            actionIndex = 1;
+            DateTime dateTime = System::getInstance().getCurrentDateTime();
+            LCDManager::getInstance().clear();
+            LCDManager::getInstance().print(F("Set Time: "));
+            LCDManager::getInstance().printFormatted(0, 1, "%02u:%02u:%02u", dateTime.hour(), dateTime.minute(), dateTime.second());
+        }
+
+        DateTime dateTime = System::getInstance().getCurrentDateTime(); // date updated after modifications
+
+        if (actionIndex == 1)
+            LCDManager::getInstance().startBlinking(dateTime.hour(), 0, 1, false, "%02u");
+        else
+            LCDManager::getInstance().startBlinking(dateTime.minute(), 3, 1, false, "%02u");
+    }
+
+    CommandManager::getInstance().setSystemCommand();
+    return true;
+}
+
+bool MenuCallbacks::resetToFactorySettings(Command cmd)
+{
+    if (actionIndex == 1)
+    {
+        if (ConfirmationMenu::getInstance().handleCommand(cmd))
+        {
+            if (ConfirmationMenu::getInstance().isConfirmed())
+            {
+                System::getInstance().resetToFactorySettings();
+            }
+
             actionIndex = 0;
             return false;
         }
-        if (cmd == Command::UP)
-        {
-            System::getInstance().decreaseMinute();
-        }
-        else if (cmd == Command::DOWN)
-        {
-            System::getInstance().increaseMinute();
-        }
     }
-
     else
     {
-        // Perform initial actions
+        ConfirmationMenu::getInstance().display();
         actionIndex = 1;
-        DateTime dateTime = System::getInstance().getCurrentDateTime();
-        LCDManager::getInstance().clear();
-        LCDManager::getInstance().print(F("Set Time: "));
-        LCDManager::getInstance().printFormatted(0, 1, "%02u:%02u", dateTime.hour(), dateTime.minute());
     }
 
-    DateTime dateTime = System::getInstance().getCurrentDateTime(); // date updated after modifications
-
-    if (actionIndex == 1)
-        LCDManager::getInstance().startBlinking(dateTime.hour(), 0, 1, false, "%02u");
-    else
-        LCDManager::getInstance().startBlinking(dateTime.minute(), 3, 1, false, "%02u");
-
     return true;
+}
+
+bool MenuCallbacks::saveSettings(Command cmd)
+{
+    System::getInstance().saveToEEPROM();
+    return false;
+}
+
+bool MenuCallbacks::loadSettings(Command cmd)
+{
+    System::getInstance().loadFromEEPROM();
+    return false;
 }

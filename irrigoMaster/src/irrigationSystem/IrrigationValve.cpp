@@ -1,9 +1,9 @@
 #include "IrrigationValve.h"
 #include "Debug.hpp"
-#include "../System.h"
 
-IrrigationValve::IrrigationValve(uint8_t pinNumber)
-    : pin(pinNumber),
+IrrigationValve::IrrigationValve(uint8_t id, uint8_t pinNumber)
+    : id(id),
+      pin(pinNumber),
       mode(ValveMode::OFF),
       startTime{0, 0},
       frequency(12),
@@ -13,6 +13,16 @@ IrrigationValve::IrrigationValve(uint8_t pinNumber)
     pinMode(pin, OUTPUT); // Initialize the pin as an OUTPUT
     close();              // Ensure the valve is closed initially
     calculateNextIrrigationTime();
+}
+
+uint8_t IrrigationValve::getID() const
+{
+    return id;
+}
+
+DateTime IrrigationValve::getNextIrrigationTime()
+{
+    return DateTime(nextIrrigationTime);
 }
 
 void IrrigationValve::open()
@@ -37,7 +47,7 @@ void IrrigationValve::calculateNextIrrigationTime()
     DateTime startDateTime(now.year(), now.month(), now.day(), startTime.hour, startTime.minute, 0);
     nextIrrigationTime = startDateTime.unixtime();
 
-    while (nextIrrigationTime <= System::getInstance().getUnixTime())
+    while (nextIrrigationTime <= now.unixtime())
     {
         nextIrrigationTime += (uint32_t)(frequency) * 3600;
     }
@@ -67,7 +77,7 @@ IrrigationValve &IrrigationValve::operator=(const IrrigationValve &other)
 {
     if (this != &other)
     {
-        // Free existing resources
+        id = other.id;
         mode = other.mode;
         startTime = other.startTime;
         frequency = other.frequency;
@@ -91,10 +101,15 @@ Time_HHMM IrrigationValve::getStartTime() const
     return startTime;
 }
 
+void IrrigationValve::updateStartTime()
+{
+    calculateNextIrrigationTime();
+}
+
 void IrrigationValve::setStartTime(Time_HHMM startTime)
 {
     this->startTime = startTime;
-    calculateNextIrrigationTime();
+    updateStartTime();
 }
 
 void IrrigationValve::increaseStartTimeHour()
@@ -133,17 +148,18 @@ uint8_t IrrigationValve::getFrequency() const
 void IrrigationValve::setFrequency(uint8_t frequency)
 {
     this->frequency = frequency;
+    updateStartTime();
 }
 
 void IrrigationValve::increaseFrequency(void)
 {
-    frequency += 12;
+    setFrequency(frequency + 12);
 }
 
 void IrrigationValve::decreaseFrequency(void)
 {
     if (frequency > 12)
-        frequency -= 12;
+        setFrequency(frequency - 12);
 }
 
 uint8_t IrrigationValve::getPeriod() const

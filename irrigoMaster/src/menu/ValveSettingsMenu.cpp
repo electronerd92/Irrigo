@@ -10,7 +10,7 @@ uint8_t ValveSettingsMenu::actionIndex = 0;
 
 // Private constructor
 ValveSettingsMenu::ValveSettingsMenu(MenuIterableObject *parent)
-    : parent(parent), source(nullptr), tmpSource(0), selectedIndex(0)
+    : parent(parent), source(nullptr), tmpSource(0, 0), selectedIndex(0)
 {
     goBackMenu = new CallableMenu(F("Go Back"), goBack);
     validateSettingsMenu = new CallableMenu(F("Validate"), validateSettings);
@@ -135,7 +135,10 @@ const bool ValveSettingsMenu::printContentAtIndex(uint8_t index, LCDManager &lcd
     {
         lcdManager.print(getMenuAtIndex(index)->getName(), 1, row);
 
-        if (getMenuAtIndex(index) == changeModeMenu)
+        if (getMenuAtIndex(index) == goBackMenu)
+            lcdManager.printRightToLeftFormatted(0, row, "[V%u]", tmpSource.getID());
+
+        else if (getMenuAtIndex(index) == changeModeMenu)
             lcdManager.printRightToLeft(valveModeToString(tmpSource.getMode()), valveModeStringLength(tmpSource.getMode()), 0, row);
 
         else if (getMenuAtIndex(index) == setStartTimeMenu)

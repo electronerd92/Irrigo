@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "CustomTypes.h"
 #include "Timer.hpp"
+#include "../System.h"
 
 // #region ValveMode
 
@@ -50,6 +51,7 @@ static inline uint8_t valveModeStringLength(ValveMode mode)
 class IrrigationValve
 {
 protected:
+    uint8_t id;
     const uint8_t pin; // Pin number for controlling the relay
 
 private:
@@ -63,10 +65,12 @@ private:
     void calculateNextIrrigationTime();
 
 public:
-    IrrigationValve(uint8_t pinNumber);
+    IrrigationValve(uint8_t id, uint8_t pinNumber);
+    IrrigationValve &operator=(const IrrigationValve &other); // Copy assignment operator
+    uint8_t getID() const;
+    DateTime getNextIrrigationTime();
     virtual void open();
     virtual void close();
-    IrrigationValve &operator=(const IrrigationValve &other); // Copy assignment operator
 
     bool isOpen();
     bool canOpen();
@@ -76,6 +80,7 @@ public:
     void setMode(ValveMode md);
 
     Time_HHMM getStartTime() const;
+    void updateStartTime();
     void setStartTime(Time_HHMM startTime);
     void increaseStartTimeHour();
     void decreaseStartTimeHour();
@@ -101,8 +106,8 @@ private:
     const uint8_t commonPin; // Second pin for extended valve
 
 public:
-    IrrigationValveExt(uint8_t pinNumber, uint8_t commonPinNumber)
-        : IrrigationValve(pinNumber), commonPin(commonPinNumber)
+    IrrigationValveExt(uint8_t id, uint8_t pinNumber, uint8_t commonPinNumber)
+        : IrrigationValve(id, pinNumber), commonPin(commonPinNumber)
     {
         pinMode(commonPin, OUTPUT);
         close();

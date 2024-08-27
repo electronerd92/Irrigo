@@ -45,6 +45,11 @@ void CommandManager::update()
     }
 }
 
+void CommandManager::setSystemCommand()
+{
+    lastCommand = Command::SYSTEM;
+}
+
 Command CommandManager::readCommand()
 {
     Command currentCmd = lastCommand;

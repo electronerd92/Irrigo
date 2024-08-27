@@ -6,7 +6,8 @@ enum class Command : uint8_t
     NONE,
     UP,
     DOWN,
-    SELECT
+    SELECT,
+    SYSTEM
 };
 
 #endif // COMMAND_H

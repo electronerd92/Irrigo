@@ -21,7 +21,11 @@ public:
     static bool selectValve7(Command cmd);
     static bool selectValve8(Command cmd);
 
-    static bool printInfo(Command cmd);
+    static bool showDataTime(Command cmd);
+    static bool setShowNextIrrigationMenu(Command cmd);
+
+    static bool saveSettings(Command cmd);
+    static bool loadSettings(Command cmd);
     static bool resetToFactorySettings(Command cmd);
 
     static bool setDate(Command cmd);

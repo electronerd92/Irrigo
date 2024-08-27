@@ -42,6 +42,7 @@ public:
 
     void setIsEnabled(bool value);
     bool getIsEnabled();
+    void enableSystem();
     void disableSystem();
 
     bool getUsePump();

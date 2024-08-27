@@ -26,6 +26,7 @@ public:
     // Method to read the command from the rotary encoder and button
     Command readCommand();
     void update();
+    void setSystemCommand();
 };
 
 #endif // COMMAND_MANAGER_H
