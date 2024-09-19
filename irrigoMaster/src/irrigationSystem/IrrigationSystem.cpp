@@ -5,7 +5,8 @@
 IrrigationSystem *IrrigationSystem::instance = nullptr;
 
 // Private constructor
-IrrigationSystem::IrrigationSystem() : valves{
+IrrigationSystem::IrrigationSystem() : currentState(OperationState::IDLE),
+                                       valves{
                                            IrrigationValve(ID_VALVE_1, PIN_VALVE_1),
                                            IrrigationValve(ID_VALVE_2, PIN_VALVE_2),
                                            IrrigationValve(ID_VALVE_3, PIN_VALVE_3),
@@ -17,7 +18,8 @@ IrrigationSystem::IrrigationSystem() : valves{
                                        pump(PIN_PUMP, PIN_VALVE_PUMP),    // setup pump
                                        tank(PIN_WLS_EMPTY, PIN_WLS_FULL), // setup tank
                                        usePump(false),                    // Default to using main feed
-                                       isEnabled(false)                   // Default status
+                                       isEnabled(false),                  // Default status
+                                       openingClosingTimer(DELAY_OPENING_CLOSING_VALVE)
 {
     pinMode(PIN_VALVE_MAIN, OUTPUT);
 }
@@ -32,7 +34,7 @@ IrrigationSystem &IrrigationSystem::getInstance()
     return *instance;
 }
 
-uint8_t IrrigationSystem::getValveNumber() const
+uint8_t IrrigationSystem::getValvesNumber() const
 {
     return VALVES_NUMBER;
 }
@@ -54,8 +56,46 @@ void IrrigationSystem::setUsePump(bool value)
     usePump = value;
 }
 
+void IrrigationSystem::handleNonBlockingOperations()
+{
+    if (openingClosingTimer.timeout())
+    {
+        switch (currentState)
+        {
+        case OperationState::STARTING_WATERING:
+            usePump ? pump.start() : turnMainValveOn();
+            currentState = OperationState::IDLE; // Reset state after starting
+            break;
+
+        case OperationState::STOPPING_WATERING:
+            usePump ? pump.stop() : turnMainValveOff();
+            currentState = OperationState::IDLE; // Reset state after stopping
+            break;
+
+        case OperationState::DISABLING_SYSTEM:
+            // Finish disabling by closing all valves
+            for (uint8_t i = 0; i < VALVES_NUMBER; i++)
+            {
+                valves[i].close();
+            }
+            currentState = OperationState::IDLE; // Reset state after disabling
+            break;
+
+        case OperationState::IDLE:
+            // No active operations
+            break;
+        }
+    }
+}
+
 void IrrigationSystem::update()
 {
+    // Handle any ongoing non-blocking operations (e.g., stopping/starting)
+    handleNonBlockingOperations();
+
+    // Update the pump to handle non-blocking stop
+    pump.update();
+
     // Check if the system is enabled
     if (!isEnabled)
     {
@@ -65,6 +105,7 @@ void IrrigationSystem::update()
     if (usePump && tank.isEmpty())
     {
         disableSystem();
+        return;
     }
 
     bool aValveIsOpen = false;
@@ -97,15 +138,25 @@ void IrrigationSystem::update()
 void IrrigationSystem::startWatering(IrrigationValve *valve)
 {
     valve->open();
-    delay(DELAY_OPENING_CLOSING_VALVE);
-    usePump ? pump.start() : turnMainValveOn();
+    currentState = OperationState::STARTING_WATERING;
+    openingClosingTimer.start();
 }
 
 void IrrigationSystem::stopWatering(IrrigationValve *valve)
 {
-    usePump ? pump.stop() : turnMainValveOff();
-    delay(DELAY_OPENING_CLOSING_VALVE);
-    valve->close();
+    // If the pump and main valve are both off, close the valve and stop processing
+    if (digitalRead(PIN_VALVE_MAIN) == LOW && (!usePump || pump.isOff()))
+    {
+        valve->close();
+        currentState = OperationState::IDLE; // Reset the state when done
+        return;
+    }
+
+    if (currentState != OperationState::STOPPING_WATERING)
+    {
+        currentState = OperationState::STOPPING_WATERING;
+        openingClosingTimer.start();
+    }
 }
 
 bool IrrigationSystem::getIsEnabled()
@@ -129,15 +180,16 @@ void IrrigationSystem::enableSystem()
 
 void IrrigationSystem::disableSystem()
 {
-    isEnabled = false;
-    pump.stop();
-    turnMainValveOff();
-    delay(DELAY_OPENING_CLOSING_VALVE);
-
-    for (uint8_t i = 0; i < VALVES_NUMBER; i++)
+    if (currentState != OperationState::DISABLING_SYSTEM)
     {
-        valves[i].close();
+        isEnabled = false;
+        currentState = OperationState::DISABLING_SYSTEM;
+        pump.stop();
+        turnMainValveOff();
+        openingClosingTimer.start(); // Start the timer for the non-blocking process
     }
+
+    handleNonBlockingOperations();
 }
 
 void IrrigationSystem::turnMainValveOn()

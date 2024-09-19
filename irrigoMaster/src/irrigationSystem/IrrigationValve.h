@@ -116,8 +116,8 @@ public:
     // Override the open and close methods
     void open() override
     {
-        IrrigationValve::open();       // Close valve
-        digitalWrite(commonPin, HIGH); // Open first common valve
+        IrrigationValve::open();       // Open valve
+        digitalWrite(commonPin, HIGH); // Open common valve
     }
 
     void close() override

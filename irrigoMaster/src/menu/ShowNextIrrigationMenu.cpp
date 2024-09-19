@@ -33,7 +33,7 @@ ShowNextIrrigationMenu &ShowNextIrrigationMenu::getInstance()
 
 const bool ShowNextIrrigationMenu::printContentAtIndex(uint8_t index, LCDManager &lcdManager, uint8_t row) const
 {
-    if (index < IrrigationSystem::getInstance().getValveNumber())
+    if (index < IrrigationSystem::getInstance().getValvesNumber())
     {
         IrrigationValve *valve = IrrigationSystem::getInstance().getValve(index);
         DateTime nextIrrigationTime = valve->getNextIrrigationTime();
@@ -59,7 +59,7 @@ void ShowNextIrrigationMenu::setSelectedIndex(uint8_t index)
 
 bool ShowNextIrrigationMenu::incrementSelectedIndex()
 {
-    if (selectedIndex < IrrigationSystem::getInstance().getValveNumber() - 1)
+    if (selectedIndex < IrrigationSystem::getInstance().getValvesNumber() - 1)
     {
         ++selectedIndex;
         return true;

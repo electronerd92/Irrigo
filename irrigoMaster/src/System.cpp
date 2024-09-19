@@ -225,7 +225,7 @@ void System::saveToEEPROM()
     EEPROM.update(addr++, irrigationSystem.getIsEnabled());
 
     // Save each valve's parameters
-    for (uint8_t i = 0; i < irrigationSystem.getValveNumber(); i++)
+    for (uint8_t i = 0; i < irrigationSystem.getValvesNumber(); i++)
     {
         IrrigationValve *valve = irrigationSystem.getValve(i);
 
@@ -274,7 +274,7 @@ void System::loadFromEEPROM()
     irrigationSystem.setIsEnabled(isEnabled);
 
     // Load valve parameters
-    for (uint8_t i = 0; i < irrigationSystem.getValveNumber(); i++)
+    for (uint8_t i = 0; i < irrigationSystem.getValvesNumber(); i++)
     {
         IrrigationValve *valve = irrigationSystem.getValve(i);
 

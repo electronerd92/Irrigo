@@ -5,6 +5,15 @@
 #include "IrrigationValve.h"
 #include "Pump.h"
 #include "Tank.h"
+#include "Timer.hpp"
+
+enum class OperationState : uint8_t
+{
+    IDLE,
+    STARTING_WATERING,
+    STOPPING_WATERING,
+    DISABLING_SYSTEM
+};
 
 class IrrigationSystem
 {
@@ -12,6 +21,7 @@ private:
     static IrrigationSystem *instance; // Singleton instance
     static constexpr uint8_t VALVES_NUMBER = 8;
 
+    OperationState currentState;
     IrrigationValve valves[VALVES_NUMBER]; // Array of 8 Valve objects
     Pump pump;
     Tank tank;
@@ -19,8 +29,11 @@ private:
     bool usePump;   // Boolean to indicate whether to use the pump
     bool isEnabled; // System status
 
+    Timer openingClosingTimer;
+
     void startWatering(IrrigationValve *valve);
     void stopWatering(IrrigationValve *valve);
+    void handleNonBlockingOperations();
 
     // Private constructor
     IrrigationSystem();
@@ -33,7 +46,7 @@ public:
     // Method to get the single instance of IrrigationSystem
     static IrrigationSystem &getInstance();
 
-    uint8_t getValveNumber() const;
+    uint8_t getValvesNumber() const;
     // Method to access the Valve objects
     IrrigationValve *getValve(uint8_t index);
 
