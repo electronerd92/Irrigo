@@ -5,16 +5,19 @@
 #include "../lcd/LCD.h"
 #include "../rotaryEncoder/RotaryEncoder.h"
 #include "MenuItem.h"
+#include "MenuIterableItem.h"
 
 class Menu
 {
 private:
     LCD *lcd;
     RotaryEncoder *rotaryEncoder;
+    int8_t cursor;
     MenuItem *currentItem;
 
-    void create();
-    void print();
+    static MenuIterableItem *create();
+    void printIterableMenu(MenuIterableItem *menuIterableItem);
+    void printCursor();
 
 public:
     Menu(LCD *lcd, RotaryEncoder *rotaryEncoder);

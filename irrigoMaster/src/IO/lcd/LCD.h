@@ -20,6 +20,11 @@ public:
     }
 
     uint8_t getLinesNumber();
+    uint8_t getColumnsNumber();
+
+    void clear();
+    void clearChar(uint8_t col, uint8_t row);
+    void clearColumn(uint8_t col);
 };
 
 #endif // LCD_H
