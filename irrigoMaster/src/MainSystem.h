@@ -11,7 +11,7 @@ class MainSystem
 {
 private:
     RTC_DS3231 rtc;
-    const IOSystem *ioSystem;
+    IOSystem *ioSystem;
 
 public:
     MainSystem();

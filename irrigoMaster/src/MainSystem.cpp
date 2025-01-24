@@ -11,4 +11,5 @@ MainSystem::MainSystem()
 
 void MainSystem::update()
 {
+    ioSystem->update();
 }

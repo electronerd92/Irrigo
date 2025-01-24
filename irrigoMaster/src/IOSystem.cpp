@@ -12,5 +12,5 @@ IOSystem::IOSystem(MainSystem *mainSystem)
 void IOSystem::update()
 {
   rotaryEncoder.update();
+  menu.update();
 }
-

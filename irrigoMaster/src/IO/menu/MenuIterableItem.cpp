@@ -10,6 +10,16 @@ MenuIterableItem::MenuIterableItem(const __FlashStringHelper *name, const uint8_
     items = new MenuItem *[itemsCount];
 }
 
+MenuItemType MenuIterableItem::getType()
+{
+    return MenuItemType::ITERABLE;
+}
+
+const __FlashStringHelper *MenuIterableItem::getName()
+{
+    return name;
+}
+
 void MenuIterableItem::addItem(MenuItem *item)
 {
     if (currentItemsCount < itemsCount)
@@ -19,12 +29,7 @@ void MenuIterableItem::addItem(MenuItem *item)
     }
 }
 
-uint8_t MenuIterableItem::getCurrentIndex()
-{
-    return currentIndex;
-}
-
-bool MenuIterableItem::decreaseCurrentIndex()
+bool MenuIterableItem::exeDownCmd()
 {
     if (currentIndex > 0)
     {
@@ -34,9 +39,9 @@ bool MenuIterableItem::decreaseCurrentIndex()
     return false;
 }
 
-bool MenuIterableItem::increaseCurrentIndex()
+bool MenuIterableItem::exeUpCmd()
 {
-    uint8_t actualItemsCount = getParent() == nullptr
+    uint8_t actualItemsCount = parent == nullptr
                                    ? itemsCount
                                    : itemsCount + 1;
     if (currentIndex < actualItemsCount - 1)
@@ -47,8 +52,15 @@ bool MenuIterableItem::increaseCurrentIndex()
     return false;
 }
 
-bool MenuIterableItem::printContentAtIndex(uint8_t index, LCD *lcd, uint8_t line)
+bool MenuIterableItem::exeSelectCmd(MenuItem *currentMenuItem)
 {
+    currentMenuItem = items[currentIndex];
+    return true;
+}
+
+bool MenuIterableItem::printLine(LCD *lcd, uint8_t line, uint8_t menuCursor)
+{
+    uint8_t index = currentIndex - menuCursor + line;
     if (index < itemsCount)
     {
         MenuItem *item = items[index];
@@ -59,7 +71,7 @@ bool MenuIterableItem::printContentAtIndex(uint8_t index, LCD *lcd, uint8_t line
 
         return true;
     }
-    else if (index == itemsCount && getParent() != nullptr)
+    else if (index == itemsCount && parent != nullptr)
     {
         lcd->print(F("Back"), 1, line);
     }

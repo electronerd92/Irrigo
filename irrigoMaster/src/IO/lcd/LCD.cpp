@@ -3,6 +3,8 @@
 
 LCD::LCD() : lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS)
 {
+    lcd.init();
+    lcd.backlight();
 }
 
 uint8_t LCD::getLinesNumber()

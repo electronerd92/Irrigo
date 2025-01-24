@@ -16,7 +16,7 @@ private:
     MenuItem *currentItem;
 
     static MenuIterableItem *create();
-    void printIterableMenu(MenuIterableItem *menuIterableItem);
+    void print(bool forceRefresh = false);
     void printCursor();
 
 public:
