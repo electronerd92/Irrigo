@@ -7,6 +7,12 @@
 #include "IO/rotaryEncoder/RotaryEncoder.h"
 #include "IO/menu/Menu.h"
 
+enum class IncreaseDecrease : byte
+{
+    INCREASE,
+    DECREASE
+};
+
 class IOSystem
 {
 private:

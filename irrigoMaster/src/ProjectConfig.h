@@ -17,8 +17,9 @@ const uint8_t ROTARY_BUTTON_PIN = 4;
 const uint8_t LCD_ADDRESS = 0x27;
 const uint8_t LCD_COLUMNS = 20;
 const uint8_t LCD_ROWS = 4;
-const unsigned long LCD_TIME_ON = 60000;      // ms
-const unsigned long LCD_BLINK_INTERVAL = 500; // ms
+const unsigned long LCD_TIME_ON = 60000;       // ms
+const unsigned long LCD_BLINK_INTERVAL = 500;  // ms
+const unsigned long LCD_BLINK_BUFFER_SIZE = 9; // 8 character buffer size + '\0'
 
 const uint32_t DELAY_OPENING_CLOSING_VALVE = 200; // ms
 

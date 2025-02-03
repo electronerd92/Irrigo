@@ -7,7 +7,7 @@
 enum class MenuItemType : byte
 {
     LIST,
-    EDIT
+    VIEW_EDIT
 };
 
 class MenuItem
@@ -16,7 +16,7 @@ protected:
     const __FlashStringHelper *name;
     MenuItem *parent = nullptr;
     uint8_t currentIndex;
-    bool refresh;
+    RefreshType refresh;
     bool scrollMode;
 
 public:
@@ -30,7 +30,7 @@ public:
     virtual bool customExeRightCmd() = 0;
     virtual bool customExeLeftCmd() = 0;
     virtual bool customExeSelectCmd(MenuItem *&currentMenuItem) = 0;
-    virtual bool printLine(LCD *lcd, uint8_t line, uint8_t menuCursor) = 0;
+    virtual bool customPrintLine(LCD *lcd, uint8_t line, uint8_t index) = 0;
 
     // Accessors
     const __FlashStringHelper *getName() const;
@@ -38,12 +38,13 @@ public:
     bool exeRightCmd();
     bool exeLeftCmd();
     bool exeSelectCmd(MenuItem *&currentMenuItem);
+    bool printLine(LCD *lcd, uint8_t line, uint8_t menuCursor);
 
     // Modifiers
     void setParent(MenuItem *p);
 
     // Refresh handling
-    bool getRefresh();
+    RefreshType getRefresh();
 };
 
 #endif // MENU_ITEM_H

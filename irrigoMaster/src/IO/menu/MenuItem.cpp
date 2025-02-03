@@ -10,7 +10,7 @@ MenuItem::MenuItem(const __FlashStringHelper *name)
 void MenuItem::init()
 {
     currentIndex = 0;
-    refresh = true;
+    refresh = RefreshType::CLEAR_ALL;
     scrollMode = true;
 }
 
@@ -29,10 +29,10 @@ void MenuItem::setParent(MenuItem *p)
     parent = p;
 }
 
-bool MenuItem::getRefresh()
+RefreshType MenuItem::getRefresh()
 {
-    bool tmp = refresh;
-    refresh = false;
+    RefreshType tmp = refresh;
+    refresh = RefreshType::NONE;
     return tmp;
 }
 
@@ -75,4 +75,18 @@ bool MenuItem::exeSelectCmd(MenuItem *&currentMenuItem)
     }
 
     return customExeSelectCmd(currentMenuItem);
+}
+
+bool MenuItem::printLine(LCD *lcd, uint8_t line, uint8_t menuCursor)
+{
+    uint8_t index = currentIndex - menuCursor + line;
+    if (index < getItemsCount() - 1)
+    {
+        return customPrintLine(lcd, line, index);
+    }
+    else if (index == getItemsCount() - 1 && parent != nullptr)
+    {
+        lcd->print(F("Back"), 1, line);
+    }
+    return false;
 }

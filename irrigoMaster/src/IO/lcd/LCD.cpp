@@ -1,10 +1,17 @@
 #include "LCD.h"
+#include "Blinker.h"
 #include "../../ProjectConfig.h"
 
 LCD::LCD() : lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS)
 {
     lcd.init();
     lcd.backlight();
+    blinker = new Blinker(this);
+}
+
+void LCD::update()
+{
+    blinker->update();
 }
 
 uint8_t LCD::getLinesNumber()
@@ -33,4 +40,14 @@ void LCD::clearColumn(uint8_t col)
     {
         clearChar(col, r);
     }
+}
+
+void LCD::startBlinker(const char *word, uint8_t c, uint8_t r)
+{
+    blinker->startBlinking(word, c, r);
+}
+
+void LCD::stopBlinker()
+{
+    blinker->stopBlinking();
 }

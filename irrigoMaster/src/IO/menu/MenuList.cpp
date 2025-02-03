@@ -18,6 +18,16 @@ void MenuList::addItem(MenuItem *item)
     }
 }
 
+void MenuList::addItem(MenuNode *item, bool editable)
+{
+    if (currentItemsCount < itemsCount)
+    {
+        MenuNodeWrapper *itemWrapped = new MenuNodeWrapper(item, editable);
+        itemWrapped->setParent(this);
+        items[currentItemsCount++] = itemWrapped;
+    }
+}
+
 MenuItemType MenuList::getType()
 {
     return MenuItemType::LIST;
@@ -37,22 +47,13 @@ bool MenuList::customExeSelectCmd(MenuItem *&currentMenuItem)
     return true;
 }
 
-bool MenuList::printLine(LCD *lcd, uint8_t line, uint8_t menuCursor)
+bool MenuList::customPrintLine(LCD *lcd, uint8_t line, uint8_t index)
 {
-    uint8_t index = currentIndex - menuCursor + line;
-    if (index < itemsCount)
-    {
-        MenuItem *item = items[index];
-        lcd->print(item->getName(), 1, line);
+    MenuItem *item = items[index];
+    lcd->print(item->getName(), 1, line);
 
-        if (item->getType() == MenuItemType::LIST)
-            lcd->print(F(">"), lcd->getColumnsNumber() - 2, line);
+    if (item->getType() == MenuItemType::LIST)
+        lcd->print(F(">"), lcd->getColumnsNumber() - 2, line);
 
-        return true;
-    }
-    else if (index == itemsCount)
-    {
-        lcd->print(F("Back"), 1, line);
-    }
-    return false;
+    return true;
 }

@@ -33,22 +33,25 @@ void Menu::update()
 
 void Menu::print()
 {
-    bool refreshAll = currentItem->getRefresh();
+    RefreshType refresType = currentItem->getRefresh();
 
     if (cursor < 0)
     {
         cursor = 0;
-        refreshAll = true;
+        refresType = RefreshType::CLEAR_ALL;
     }
     else if (cursor >= lcd->getLinesNumber())
     {
         cursor = lcd->getLinesNumber() - 1;
-        refreshAll = true;
+        refresType = RefreshType::CLEAR_ALL;
     }
 
-    if (refreshAll)
+    if (refresType != RefreshType::NONE)
     {
-        lcd->clear();
+        if (refresType == RefreshType::CLEAR_ALL)
+        {
+            lcd->clear();
+        }
 
         for (uint8_t line = 0; line < lcd->getLinesNumber(); line++)
         {
