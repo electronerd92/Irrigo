@@ -5,7 +5,7 @@ Menu::Menu(LCD *lcd, RotaryEncoder *rotaryEncoder)
     : lcd(lcd), rotaryEncoder(rotaryEncoder), cursor(0), currentItem(nullptr)
 {
     currentItem = Menu::create();
-    print(true);
+    print();
 }
 
 void Menu::update()
@@ -15,25 +15,25 @@ void Menu::update()
     if (cmd == Command::NONE)
         return;
 
-    else if (cmd == Command::DOWN && currentItem->exeUpCmd())
+    else if (cmd == Command::RIGHT && currentItem->exeRightCmd())
     {
         cursor++;
     }
-    else if (cmd == Command::UP && currentItem->exeDownCmd())
+    else if (cmd == Command::LEFT && currentItem->exeLeftCmd())
     {
         cursor--;
     }
-    else if (cmd == Command::SELECT)
+    else if (cmd == Command::SELECT && currentItem->exeSelectCmd(currentItem))
     {
-        currentItem->exeSelectCmd(currentItem);
+        cursor = 0;
     }
 
     print();
 }
 
-void Menu::print(bool forceRefresh)
+void Menu::print()
 {
-    bool refreshAll = forceRefresh;
+    bool refreshAll = currentItem->getRefresh();
 
     if (cursor < 0)
     {
@@ -42,7 +42,7 @@ void Menu::print(bool forceRefresh)
     }
     else if (cursor >= lcd->getLinesNumber())
     {
-        cursor = (int8_t)(lcd->getLinesNumber()) - 1;
+        cursor = lcd->getLinesNumber() - 1;
         refreshAll = true;
     }
 
@@ -69,15 +69,15 @@ void Menu::printCursor()
     lcd->print(">", 0, cursor);
 }
 
-MenuIterableItem *Menu::create()
+MenuList *Menu::create()
 {
-    MenuIterableItem *mainMenu = new MenuIterableItem(F("Main"), 6);
-    MenuIterableItem *settingsMenu = new MenuIterableItem(F("Settings"), 2);
-    MenuIterableItem *infoMenu = new MenuIterableItem(F("Info"), 2);
-    MenuIterableItem *infoMenu2 = new MenuIterableItem(F("Info2"), 2);
-    MenuIterableItem *infoMenu3 = new MenuIterableItem(F("Info3"), 2);
-    MenuIterableItem *infoMenu4 = new MenuIterableItem(F("Info4"), 2);
-    MenuIterableItem *infoMenu5 = new MenuIterableItem(F("Info5"), 2);
+    MenuList *mainMenu = new MenuList(F("Main"), 6);
+    MenuList *settingsMenu = new MenuList(F("Settings"), 4);
+    MenuList *infoMenu = new MenuList(F("Info"), 2);
+    MenuList *infoMenu2 = new MenuList(F("Info2"), 2);
+    MenuList *infoMenu3 = new MenuList(F("Info3"), 2);
+    MenuList *infoMenu4 = new MenuList(F("Info4"), 2);
+    MenuList *infoMenu5 = new MenuList(F("Info5"), 2);
 
     mainMenu->addItem(settingsMenu);
     mainMenu->addItem(infoMenu);
@@ -85,6 +85,18 @@ MenuIterableItem *Menu::create()
     mainMenu->addItem(infoMenu3);
     mainMenu->addItem(infoMenu4);
     mainMenu->addItem(infoMenu5);
+
+    MenuList *settingsMenu2 = new MenuList(F("Settings2"), 2);
+    MenuList *settingsMenu3 = new MenuList(F("Settings3"), 2);
+    MenuList *settingsMenu4 = new MenuList(F("Settings4"), 2);
+    MenuList *settingsMenu5 = new MenuList(F("Settings5"), 2);
+    MenuList *settingsMenu6 = new MenuList(F("Settings6"), 2);
+
+    settingsMenu->addItem(settingsMenu2);
+    settingsMenu->addItem(settingsMenu3);
+    settingsMenu->addItem(settingsMenu4);
+    settingsMenu->addItem(settingsMenu5);
+    settingsMenu->addItem(settingsMenu6);
 
     return mainMenu; // Return the top-level menu
 }

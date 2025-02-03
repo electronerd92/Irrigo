@@ -6,27 +6,44 @@
 
 enum class MenuItemType : byte
 {
-    ITERABLE,
-    CALLABLE
+    LIST,
+    EDIT
 };
 
 class MenuItem
 {
 protected:
+    const __FlashStringHelper *name;
     MenuItem *parent = nullptr;
+    uint8_t currentIndex;
+    bool refresh;
+    bool scrollMode;
 
 public:
+    // Constructor
+    MenuItem(const __FlashStringHelper *name);
+    void init();
+
     // Pure virtual methods that must be implemented by derived classes
-    virtual const __FlashStringHelper *getName() = 0;
     virtual MenuItemType getType() = 0;
-    virtual bool exeDownCmd() = 0;
-    virtual bool exeUpCmd() = 0;
-    virtual bool exeSelectCmd(MenuItem *currentMenuItem) = 0;
+    virtual uint8_t getItemsCount() = 0;
+    virtual bool customExeRightCmd() = 0;
+    virtual bool customExeLeftCmd() = 0;
+    virtual bool customExeSelectCmd(MenuItem *&currentMenuItem) = 0;
     virtual bool printLine(LCD *lcd, uint8_t line, uint8_t menuCursor) = 0;
 
-    // Parent handling
-    virtual MenuItem *getParent() { return parent; };
-    virtual void setParent(MenuItem *p) { this->parent = p; }
+    // Accessors
+    const __FlashStringHelper *getName() const;
+    MenuItem *getParent() const;
+    bool exeRightCmd();
+    bool exeLeftCmd();
+    bool exeSelectCmd(MenuItem *&currentMenuItem);
+
+    // Modifiers
+    void setParent(MenuItem *p);
+
+    // Refresh handling
+    bool getRefresh();
 };
 
 #endif // MENU_ITEM_H

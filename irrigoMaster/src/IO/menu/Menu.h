@@ -5,7 +5,7 @@
 #include "../lcd/LCD.h"
 #include "../rotaryEncoder/RotaryEncoder.h"
 #include "MenuItem.h"
-#include "MenuIterableItem.h"
+#include "MenuList.h"
 
 class Menu
 {
@@ -15,8 +15,8 @@ private:
     int8_t cursor;
     MenuItem *currentItem;
 
-    static MenuIterableItem *create();
-    void print(bool forceRefresh = false);
+    static MenuList *create();
+    void print();
     void printCursor();
 
 public:

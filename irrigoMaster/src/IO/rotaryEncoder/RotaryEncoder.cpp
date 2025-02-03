@@ -14,12 +14,12 @@ void RotaryEncoder::update()
     {
         if (dir == 1) // CW
         {
-            lastCommand = Command::DOWN;
+            lastCommand = Command::RIGHT;
         }
 
         else if (dir == 2) // CCW
         {
-            lastCommand = Command::UP;
+            lastCommand = Command::LEFT;
         }
     }
 

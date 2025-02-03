@@ -4,8 +4,8 @@
 enum class Command : uint8_t
 {
     NONE,
-    UP,
-    DOWN,
+    LEFT,
+    RIGHT,
     SELECT
 };
 
