@@ -5,7 +5,7 @@ IOSystem::IOSystem(MainSystem *mainSystem)
     : mainSystem(mainSystem),
       lcd(),
       rotaryEncoder(),
-      menu(&lcd, &rotaryEncoder)
+      menu(&lcd, &rotaryEncoder, this)
 {
 }
 

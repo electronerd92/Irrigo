@@ -16,7 +16,7 @@ public:
     };
 
 private:
-    static constexpr uint8_t nodeItemsCount = 1;
+    static constexpr uint8_t nodeItemsCount = 2;
     NodeItem valveSettings[nodeItemsCount];
 
     const char *getValveState();

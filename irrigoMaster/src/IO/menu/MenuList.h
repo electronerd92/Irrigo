@@ -11,12 +11,12 @@ class MenuList : public MenuItem
 private:
     MenuItem **items;
     const uint8_t itemsCount;
+    const bool editableItems;
     uint8_t currentItemsCount;
 
 public:
-    MenuList(const __FlashStringHelper *name, const uint8_t itemsCount);
+    MenuList(const __FlashStringHelper *name, const uint8_t itemsCount, bool editableItems = true);
     void addItem(MenuItem *item);
-    void addItem(MenuNode *item, bool editable);
 
     MenuItemType getType() override;
     uint8_t getItemsCount() override;

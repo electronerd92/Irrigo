@@ -1,10 +1,16 @@
 #include "menu.h"
 #include "Debug.hpp"
+#include "MenuValve.h"
+#include "../../IOSystem.h"
 
-Menu::Menu(LCD *lcd, RotaryEncoder *rotaryEncoder)
-    : lcd(lcd), rotaryEncoder(rotaryEncoder), cursor(0), currentItem(nullptr)
+Menu::Menu(LCD *lcd, RotaryEncoder *rotaryEncoder, IOSystem *iosys)
+    : lcd(lcd),
+      rotaryEncoder(rotaryEncoder),
+      iosys(iosys),
+      cursor(0),
+      currentItem(nullptr)
 {
-    currentItem = Menu::create();
+    currentItem = Menu::create(iosys);
     print();
 }
 
@@ -12,7 +18,7 @@ void Menu::update()
 {
     Command cmd = rotaryEncoder->readCommand();
 
-    if (cmd == Command::NONE)
+    if (cmd == Command::NONE && currentItem->getRefresh(false) == RefreshType::NONE)
         return;
 
     else if (cmd == Command::RIGHT && currentItem->exeRightCmd())
@@ -72,7 +78,7 @@ void Menu::printCursor()
     lcd->print(">", 0, cursor);
 }
 
-MenuList *Menu::create()
+MenuList *Menu::create(IOSystem *iosys)
 {
     MenuList *mainMenu = new MenuList(F("Main"), 6);
     MenuList *settingsMenu = new MenuList(F("Settings"), 4);
@@ -89,8 +95,8 @@ MenuList *Menu::create()
     mainMenu->addItem(infoMenu4);
     mainMenu->addItem(infoMenu5);
 
-    MenuList *settingsMenu2 = new MenuList(F("Settings2"), 2);
-    MenuList *settingsMenu3 = new MenuList(F("Settings3"), 2);
+    MenuList *settingsMenu2 = new MenuList(F("Settings2"), 1, false);
+    MenuList *settingsMenu3 = new MenuList(F("Settings3"), 1);
     MenuList *settingsMenu4 = new MenuList(F("Settings4"), 2);
     MenuList *settingsMenu5 = new MenuList(F("Settings5"), 2);
     MenuList *settingsMenu6 = new MenuList(F("Settings6"), 2);
@@ -100,6 +106,12 @@ MenuList *Menu::create()
     settingsMenu->addItem(settingsMenu4);
     settingsMenu->addItem(settingsMenu5);
     settingsMenu->addItem(settingsMenu6);
+
+    MenuValve *menuValve = new MenuValve(F("Valve settings"), iosys);
+
+    settingsMenu2->addItem(menuValve);
+
+    settingsMenu3->addItem(menuValve);
 
     return mainMenu; // Return the top-level menu
 }

@@ -43,8 +43,8 @@ public:
     // Modifiers
     void setParent(MenuItem *p);
 
-    // Refresh handling
-    RefreshType getRefresh();
+    // getters
+    RefreshType getRefresh(bool reset = true);
 };
 
 #endif // MENU_ITEM_H

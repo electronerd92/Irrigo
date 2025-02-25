@@ -1,9 +1,10 @@
 #include "Debug.hpp"
 #include "MenuList.h"
 
-MenuList::MenuList(const __FlashStringHelper *name, const uint8_t itemsCount)
+MenuList::MenuList(const __FlashStringHelper *name, const uint8_t itemsCount, bool editableItems)
     : MenuItem(name),
       itemsCount(itemsCount),
+      editableItems(editableItems),
       currentItemsCount(0)
 {
     items = new MenuItem *[itemsCount];
@@ -15,16 +16,6 @@ void MenuList::addItem(MenuItem *item)
     {
         item->setParent(this);
         items[currentItemsCount++] = item;
-    }
-}
-
-void MenuList::addItem(MenuNode *item, bool editable)
-{
-    if (currentItemsCount < itemsCount)
-    {
-        MenuNodeWrapper *itemWrapped = new MenuNodeWrapper(item, editable);
-        itemWrapped->setParent(this);
-        items[currentItemsCount++] = itemWrapped;
     }
 }
 
@@ -44,6 +35,11 @@ bool MenuList::customExeSelectCmd(MenuItem *&currentMenuItem)
 {
     currentMenuItem = items[currentIndex];
     currentMenuItem->init();
+    if (currentMenuItem->getType() == MenuItemType::VIEW_EDIT)
+    {
+        MenuNode *node = static_cast<MenuNode *>(currentMenuItem);
+        node->setCanEdit(editableItems);
+    }
     return true;
 }
 

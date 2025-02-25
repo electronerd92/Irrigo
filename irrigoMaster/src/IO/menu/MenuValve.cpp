@@ -1,10 +1,15 @@
 #include "MenuValve.h"
+#include "Debug.hpp"
 
 MenuValve::MenuValve(const __FlashStringHelper *name, IOSystem *iosys) : MenuNode(name, iosys)
 {
-    valveSettings[0] = {F("Valve"), &MenuValve::getValveState, &MenuValve::setValveState};
-    valveSettings[1] = {F("Mode"), &MenuValve::getValveState, &MenuValve::setValveState};
-    valveSettings[2] = {F("Mode"), nullptr, &MenuValve::setValveState};
+    valveSettings[0].name = F("Valve");
+    valveSettings[0].getter = &MenuValve::getValveState;
+    valveSettings[0].setter = &MenuValve::setValveState;
+
+    valveSettings[1].name = F("test");
+    valveSettings[1].getter = &MenuValve::getValveState;
+    valveSettings[1].setter = &MenuValve::setValveState;
 }
 
 uint8_t MenuValve::getItemsCount()
@@ -32,6 +37,7 @@ bool MenuValve::customExeSelectCmd(MenuItem *&currentMenuItem)
 
     if (scrollMode == true)
     {
+        // 0 because even in show mode need to switch valve to viex params
         if (currentIndex == 0 || canEdit)
         {
             scrollMode = false;

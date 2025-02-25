@@ -29,10 +29,14 @@ void MenuItem::setParent(MenuItem *p)
     parent = p;
 }
 
-RefreshType MenuItem::getRefresh()
+RefreshType MenuItem::getRefresh(bool reset)
 {
     RefreshType tmp = refresh;
-    refresh = RefreshType::NONE;
+    if (reset)
+    {
+        refresh = RefreshType::NONE;
+    }
+
     return tmp;
 }
 
@@ -73,20 +77,21 @@ bool MenuItem::exeSelectCmd(MenuItem *&currentMenuItem)
         currentMenuItem->init();
         return true;
     }
-
     return customExeSelectCmd(currentMenuItem);
 }
 
 bool MenuItem::printLine(LCD *lcd, uint8_t line, uint8_t menuCursor)
 {
     uint8_t index = currentIndex - menuCursor + line;
-    if (index < getItemsCount() - 1)
-    {
-        return customPrintLine(lcd, line, index);
-    }
-    else if (index == getItemsCount() - 1 && parent != nullptr)
+
+    if (index == getItemsCount() - 1 && parent != nullptr)
     {
         lcd->print(F("Back"), 1, line);
     }
+    else if (index < getItemsCount())
+    {
+        return customPrintLine(lcd, line, index);
+    }
+
     return false;
 }
