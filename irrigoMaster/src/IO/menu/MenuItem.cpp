@@ -12,6 +12,7 @@ void MenuItem::init()
     currentIndex = 0;
     refresh = RefreshType::CLEAR_ALL;
     scrollMode = true;
+    customExtraInit();
 }
 
 const __FlashStringHelper *MenuItem::getName() const
@@ -73,6 +74,7 @@ bool MenuItem::exeSelectCmd(MenuItem *&currentMenuItem)
 {
     if (scrollMode && currentIndex == getItemsCount() - 1 && parent != nullptr)
     {
+        customFinish();
         currentMenuItem = parent;
         currentMenuItem->init();
         return true;

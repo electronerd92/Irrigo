@@ -1,7 +1,7 @@
 #include "menu.h"
 #include "Debug.hpp"
 #include "MenuValve.h"
-#include "../../IOSystem.h"
+#include "../IOSystem.h"
 
 Menu::Menu(LCD *lcd, RotaryEncoder *rotaryEncoder, IOSystem *iosys)
     : lcd(lcd),
@@ -80,38 +80,17 @@ void Menu::printCursor()
 
 MenuList *Menu::create(IOSystem *iosys)
 {
-    MenuList *mainMenu = new MenuList(F("Main"), 6);
-    MenuList *settingsMenu = new MenuList(F("Settings"), 4);
-    MenuList *infoMenu = new MenuList(F("Info"), 2);
-    MenuList *infoMenu2 = new MenuList(F("Info2"), 2);
-    MenuList *infoMenu3 = new MenuList(F("Info3"), 2);
-    MenuList *infoMenu4 = new MenuList(F("Info4"), 2);
-    MenuList *infoMenu5 = new MenuList(F("Info5"), 2);
+    MenuList *mainMenu = new MenuList(F("Main"), 2);
+    MenuList *settingsMenu = new MenuList(F("Settings"), 1);
+    MenuList *infoMenu = new MenuList(F("Info"), 1, false);
 
     mainMenu->addItem(settingsMenu);
     mainMenu->addItem(infoMenu);
-    mainMenu->addItem(infoMenu2);
-    mainMenu->addItem(infoMenu3);
-    mainMenu->addItem(infoMenu4);
-    mainMenu->addItem(infoMenu5);
-
-    MenuList *settingsMenu2 = new MenuList(F("Settings2"), 1, false);
-    MenuList *settingsMenu3 = new MenuList(F("Settings3"), 1);
-    MenuList *settingsMenu4 = new MenuList(F("Settings4"), 2);
-    MenuList *settingsMenu5 = new MenuList(F("Settings5"), 2);
-    MenuList *settingsMenu6 = new MenuList(F("Settings6"), 2);
-
-    settingsMenu->addItem(settingsMenu2);
-    settingsMenu->addItem(settingsMenu3);
-    settingsMenu->addItem(settingsMenu4);
-    settingsMenu->addItem(settingsMenu5);
-    settingsMenu->addItem(settingsMenu6);
 
     MenuValve *menuValve = new MenuValve(F("Valve settings"), iosys);
 
-    settingsMenu2->addItem(menuValve);
-
-    settingsMenu3->addItem(menuValve);
+    settingsMenu->addItem(menuValve);
+    infoMenu->addItem(menuValve);
 
     return mainMenu; // Return the top-level menu
 }

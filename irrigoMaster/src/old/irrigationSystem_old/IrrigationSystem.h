@@ -19,7 +19,7 @@ class IrrigationSystem
 {
 private:
     static IrrigationSystem *instance; // Singleton instance
-    static constexpr uint8_t VALVES_NUMBER = 8;
+    static const uint8_t VALVES_NUMBER = 8;
 
     OperationState currentState;
     IrrigationValve valves[VALVES_NUMBER]; // Array of 8 Valve objects

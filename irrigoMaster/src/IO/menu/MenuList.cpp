@@ -34,12 +34,13 @@ uint8_t MenuList::getItemsCount()
 bool MenuList::customExeSelectCmd(MenuItem *&currentMenuItem)
 {
     currentMenuItem = items[currentIndex];
-    currentMenuItem->init();
     if (currentMenuItem->getType() == MenuItemType::VIEW_EDIT)
     {
         MenuNode *node = static_cast<MenuNode *>(currentMenuItem);
+        node->setParent(this);
         node->setCanEdit(editableItems);
     }
+    currentMenuItem->init();
     return true;
 }
 

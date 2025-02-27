@@ -24,6 +24,10 @@ public:
     MenuItem(const __FlashStringHelper *name);
     void init();
 
+    // Optional virtual methods that can be implemented by derived classes
+    virtual void customExtraInit() {};
+    virtual void customFinish() {};
+
     // Pure virtual methods that must be implemented by derived classes
     virtual MenuItemType getType() = 0;
     virtual uint8_t getItemsCount() = 0;
