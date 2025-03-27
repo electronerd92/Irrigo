@@ -19,6 +19,56 @@ void IOSystem::update()
   lcd.update();
 }
 
+const char *IOSystem::getIrrigationSystemMode()
+{
+  uint8_t value = irrigationSystem->getMode();
+
+  switch (value)
+  {
+  case OFF:
+    return "OFF";
+
+  case ON:
+    return "ON";
+
+  default:
+    return "ERR";
+  }
+}
+
+void IOSystem::setIrrigationSystemMode(bool goUp)
+{
+  irrigationSystem->setMode(irrigationSystem->getMode() ^ 1); // xor to iterate 0 and 1
+}
+
+const char *IOSystem::getWaterFeederType()
+{
+  WaterFeederType value = irrigationSystem->getWaterFeederType();
+
+  switch (value)
+  {
+  case WaterFeederType::MAIN:
+    return "MAIN";
+
+  case WaterFeederType::PUMP:
+    return "PUMP";
+
+  default:
+    return "ERR";
+  }
+}
+
+void IOSystem::setWaterFeederType(bool goUp)
+{
+  WaterFeederType currentWaterFeederType = irrigationSystem->getWaterFeederType();
+  int WaterFeederTypeCount = static_cast<int>(WaterFeederType::COUNT);
+
+  int newWaterFeederType = static_cast<int>(currentWaterFeederType) + (goUp ? 1 : -1);
+  newWaterFeederType = (newWaterFeederType + WaterFeederTypeCount) % WaterFeederTypeCount; // Circular wrap-around
+
+  irrigationSystem->setWaterFeederType(static_cast<WaterFeederType>(newWaterFeederType));
+}
+
 void IOSystem::initValveIndex()
 {
   irrigationSystem->setValveIndex(0);
@@ -48,6 +98,9 @@ const char *IOSystem::getValveMode()
 
   case ValveMode::TIMER:
     return "TIMER";
+
+  default:
+    return "ERR";
   }
 }
 
@@ -99,8 +152,16 @@ const char *IOSystem::getValveFrequency()
 
 void IOSystem::setValveFrequency(bool goUp)
 {
-  int delta = goUp == true ? +6 : -6;
-  irrigationSystem->setValveFrequency(irrigationSystem->getValveFrequency() + delta);
+  constexpr uint8_t delta = 12;
+  uint8_t currentFrequency = irrigationSystem->getValveFrequency();
+  if (goUp && currentFrequency <= 255 - delta)
+  {
+    irrigationSystem->setValveFrequency(currentFrequency + delta);
+  }
+  else if (!goUp && currentFrequency >= delta)
+  {
+    irrigationSystem->setValveFrequency(currentFrequency - delta);
+  }
 }
 
 const char *IOSystem::getValveDuration()
@@ -116,6 +177,14 @@ const char *IOSystem::getValveDuration()
 
 void IOSystem::setValveDuration(bool goUp)
 {
-  int delta = goUp == true ? +1 : -1;
-  irrigationSystem->setValveDuration(irrigationSystem->getValveDuration() + delta);
+  constexpr uint8_t delta = 1;
+  uint8_t currentDuration = irrigationSystem->getValveDuration();
+  if (goUp && currentDuration <= 255 - delta)
+  {
+    irrigationSystem->setValveDuration(currentDuration + delta);
+  }
+  else if (!goUp && currentDuration >= delta)
+  {
+    irrigationSystem->setValveDuration(currentDuration - delta);
+  }
 }

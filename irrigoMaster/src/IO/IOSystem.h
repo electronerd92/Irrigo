@@ -23,6 +23,12 @@ public:
     IOSystem(MainSystem *mainSystem);
     void update();
 
+    const char *getIrrigationSystemMode();
+    void setIrrigationSystemMode(bool goUp);
+
+    const char *getWaterFeederType();
+    void setWaterFeederType(bool goUp);
+
     void initValveIndex();
     const char *getValveIndex();
     void setValveIndex(bool goUp);

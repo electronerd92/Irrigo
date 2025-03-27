@@ -21,6 +21,8 @@ public:
 
     // getters
     IrrigationSystem *getIrrigationSystem();
+
+    uint32_t getUnixTime();
 };
 
 #endif // MAIN_SYSTEM_H

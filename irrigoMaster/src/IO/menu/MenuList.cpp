@@ -33,7 +33,7 @@ uint8_t MenuList::getItemsCount()
 
 bool MenuList::customExeSelectCmd(MenuItem *&currentMenuItem)
 {
-    currentMenuItem = items[currentIndex];
+    currentMenuItem = items[getCurrentIndex()];
     if (currentMenuItem->getType() == MenuItemType::VIEW_EDIT)
     {
         MenuNode *node = static_cast<MenuNode *>(currentMenuItem);
@@ -48,9 +48,6 @@ bool MenuList::customPrintLine(LCD *lcd, uint8_t line, uint8_t index)
 {
     MenuItem *item = items[index];
     lcd->print(item->getName(), 1, line);
-
-    if (item->getType() == MenuItemType::LIST)
-        lcd->print(F(">"), lcd->getColumnsNumber() - 2, line);
-
+    lcd->print(F(">"), lcd->getColumnsNumber() - 1, line);
     return true;
 }

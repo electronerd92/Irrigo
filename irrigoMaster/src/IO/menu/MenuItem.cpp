@@ -7,6 +7,11 @@ MenuItem::MenuItem(const __FlashStringHelper *name)
     init();
 }
 
+uint8_t MenuItem::getCurrentIndex()
+{
+    return parent != nullptr ? currentIndex - 1 : currentIndex;
+}
+
 void MenuItem::init()
 {
     currentIndex = 0;
@@ -72,7 +77,7 @@ bool MenuItem::exeRightCmd()
 
 bool MenuItem::exeSelectCmd(MenuItem *&currentMenuItem)
 {
-    if (scrollMode && currentIndex == getItemsCount() - 1 && parent != nullptr)
+    if (scrollMode && currentIndex == 0 && parent != nullptr)
     {
         customFinish();
         currentMenuItem = parent;
@@ -85,14 +90,17 @@ bool MenuItem::exeSelectCmd(MenuItem *&currentMenuItem)
 bool MenuItem::printLine(LCD *lcd, uint8_t line, uint8_t menuCursor)
 {
     uint8_t index = currentIndex - menuCursor + line;
+    int8_t parentOffset = parent != nullptr ? -1 : 0;
 
-    if (index == getItemsCount() - 1 && parent != nullptr)
+    if (index == 0 && parent != nullptr)
     {
-        lcd->print(F("Back"), 1, line);
+        lcd->print(parent->name, 1, line);
+        lcd->print(F("^"), lcd->getColumnsNumber() - 1, line);
+        return true;
     }
     else if (index < getItemsCount())
     {
-        return customPrintLine(lcd, line, index);
+        return customPrintLine(lcd, line, index + parentOffset);
     }
 
     return false;

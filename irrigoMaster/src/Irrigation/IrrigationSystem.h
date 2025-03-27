@@ -4,17 +4,29 @@
 #include <Arduino.h>
 #include "../MainSystem.h"
 #include "Valve.h"
+#include "WaterFeeder.h"
 
 class IrrigationSystem
 {
 private:
-    const MainSystem *mainSystem;
-    static const uint8_t VALVES_NUMBER = 8;
-    Valve valves[VALVES_NUMBER]; // Array of 8 Valve objects
+    MainSystem *mainSystem;
+    static const uint8_t valveNumber = 8;
+    Valve valves[valveNumber]; // Array of 8 Valve objects
     uint8_t valveIndex;
+    uint8_t mode;
+    WaterFeeder waterFeeder;
 
 public:
     IrrigationSystem(MainSystem *mainSystem);
+
+    void update();
+    void EmergencyCloseAll();
+
+    uint8_t getMode();
+    void setMode(uint8_t value);
+
+    WaterFeederType getWaterFeederType();
+    void setWaterFeederType(WaterFeederType value);
 
     uint8_t getValveIndex();
     void setValveIndex(uint8_t value);

@@ -12,12 +12,16 @@ enum class MenuItemType : byte
 
 class MenuItem
 {
+private:
+    uint8_t currentIndex;
+
 protected:
     const __FlashStringHelper *name;
     MenuItem *parent = nullptr;
-    uint8_t currentIndex;
     RefreshType refresh;
     bool scrollMode;
+
+    uint8_t getCurrentIndex();
 
 public:
     // Constructor

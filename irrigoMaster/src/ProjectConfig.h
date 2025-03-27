@@ -1,8 +1,13 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
-// EEPROM
+const uint32_t MIN_TO_MS = 60000;
+const uint32_t H_TO_MS = 3600000;
 
+const uint8_t ON = 1;
+const uint8_t OFF = 0;
+
+// EEPROM
 const uint8_t EEPROM_VERSION_HIGH = 1;
 const uint8_t EEPROM_VERSION_LOW = 0;
 
@@ -49,10 +54,10 @@ const uint8_t PIN_VALVE_PUMP = 18;
 const uint8_t PIN_VALVE_MAIN = 19;
 
 // Pin Pump
-const uint8_t PIN_PUMP = 30;
+const uint8_t PIN_RELAY_PUMP = 30;
 
 // Pin Water Level Sensor for tank
-const uint8_t PIN_WLS_EMPTY = 31;
-const uint8_t PIN_WLS_FULL = 32;
+const uint8_t PIN_TANK_EMPTY = 31;
+const uint8_t PIN_TANK_FULL = 32;
 
 #endif // PROJECT_CONFIG_H

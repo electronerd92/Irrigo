@@ -20,6 +20,7 @@ public:
     MenuItemType getType() override { return MenuItemType::VIEW_EDIT; };
     void customExtraInit() override
     {
+        // TODO : in MainSystem add a mode and when editing stop irrigation or other automatations
         if (canEdit)
             debugLog("Set EditMode true");
     };

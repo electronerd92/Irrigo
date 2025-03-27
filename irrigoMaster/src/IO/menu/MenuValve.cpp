@@ -53,14 +53,14 @@ uint8_t MenuValve::getItemsCount()
 bool MenuValve::customExeRightCmd()
 {
     refresh = RefreshType::REFRESH;
-    (this->*valveSettings[currentIndex].setter)(true);
+    (this->*valveSettings[getCurrentIndex()].setter)(true);
     return false;
 }
 
 bool MenuValve::customExeLeftCmd()
 {
     refresh = RefreshType::REFRESH;
-    (this->*valveSettings[currentIndex].setter)(false);
+    (this->*valveSettings[getCurrentIndex()].setter)(false);
     return false;
 }
 
@@ -69,12 +69,12 @@ bool MenuValve::customExeSelectCmd(MenuItem *&currentMenuItem)
     refresh = RefreshType::REFRESH;
 
     // 0 because even in show mode need to switch valve to viex params
-    if (scrollMode == true && (currentIndex == 0 || canEdit))
+    if (scrollMode == true && (getCurrentIndex() == 0 || canEdit))
     {
         currentSubIndex = 0;
         scrollMode = false;
     }
-    else if (currentSubIndex == valveSettings[currentIndex].subItems)
+    else if (currentSubIndex == valveSettings[getCurrentIndex()].subItems)
     {
         scrollMode = true;
         refresh = RefreshType::CLEAR_ALL;
@@ -101,7 +101,7 @@ bool MenuValve::customPrintLine(LCD *lcd, uint8_t line, uint8_t index)
         return true;
     }
 
-    else if (index == currentIndex)
+    else if (index == getCurrentIndex())
     {
         if (valveSettings[index].getter != nullptr)
         {

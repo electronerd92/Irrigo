@@ -14,9 +14,15 @@ MainSystem::MainSystem()
 void MainSystem::update()
 {
     ioSystem->update();
+    irrigationSystem->update();
 }
 
 IrrigationSystem *MainSystem::getIrrigationSystem()
 {
     return irrigationSystem;
+}
+
+uint32_t MainSystem::getUnixTime()
+{
+    return rtc.now().unixtime();
 }
