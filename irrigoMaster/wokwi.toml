@@ -1,0 +1,5 @@
+[wokwi]
+version=1
+firmware='../.pio/build/irrigoMaster_env/firmware.hex'
+elf='../.pio/build/irrigoMaster_env/firmware.elf'
+gdbServerPort=3333

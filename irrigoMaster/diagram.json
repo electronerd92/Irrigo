@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "author": "forum...",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": -152.67, "left": -110.67, "attrs": {} },
+    { "type": "wokwi-ds1307", "id": "rtc1", "top": 86.69, "left": 88.67, "attrs": {} },
+    {
+      "type": "wokwi-ky-040",
+      "id": "encoder1",
+      "top": -46.3,
+      "left": -356,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-lcd2004",
+      "id": "lcd1",
+      "top": 121.6,
+      "left": -378.4,
+      "attrs": { "pins": "i2c" }
+    }
+  ],
+  "connections": [
+    [ "uno:5V", "rtc1:5V", "red", [ "v0" ] ],
+    [ "uno:GND.2", "rtc1:GND", "black", [ "v0" ] ],
+    [ "rtc1:SDA", "uno:A4", "green", [ "h-87.5", "v-50.76", "h124" ] ],
+    [ "rtc1:SCL", "uno:A5", "green", [ "h-95.5", "v-66.93", "h143.33" ] ],
+    [ "lcd1:GND", "uno:GND.3", "black", [ "v-67.2", "h442.73" ] ],
+    [ "lcd1:VCC", "uno:5V", "red", [ "h-57.6", "v-86.3", "h471.73" ] ],
+    [ "lcd1:SCL", "uno:A5", "green", [ "v-76.5", "h519.23" ] ],
+    [ "lcd1:SDA", "uno:A4", "green", [ "v-76.6", "h509.73" ] ],
+    [ "encoder1:CLK", "uno:3", "green", [ "h0" ] ],
+    [ "encoder1:SW", "uno:4", "green", [ "h0" ] ],
+    [ "encoder1:DT", "uno:2", "green", [ "h0" ] ],
+    [ "encoder1:VCC", "uno:5V", "red", [ "h0" ] ],
+    [ "encoder1:GND", "uno:GND.2", "black", [ "h0" ] ]
+  ],
+  "serialMonitor": { "display": "auto", "newline": "none" },
+  "dependencies": {}
+}
