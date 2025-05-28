@@ -3,37 +3,67 @@
 #include "Debug.hpp"
 
 RotaryEncoder::RotaryEncoder()
-    : encoder(ROTARY_PIN_A, ROTARY_PIN_B, ROTARY_BUTTON_PIN), lastCommand(Command::NONE) {}
+    : encoder(ROTARY_PIN_A, ROTARY_PIN_B),
+      lastCommand(Command::NONE),
+      lastPosition(encoder.read()),
+      buttonPressed(false),
+      debounceTimer(debounceDelay),
+      accelerationTimer(accelerationTimeout),
+      stepThreshold(defaultThreshold)
+{
+    pinMode(ROTARY_BUTTON_PIN, INPUT_PULLUP);
+}
 
 void RotaryEncoder::update()
 {
-    // Read the rotary encoder
-    byte dir = encoder.rotate();
+    handleRotation();
+    handleButton();
+}
 
-    if (dir != 0)
+void RotaryEncoder::handleRotation()
+{
+    long currentPosition = encoder.read();
+    long delta = currentPosition - lastPosition;
+
+    if (abs(delta) >= stepThreshold)
     {
-        if (dir == 1) // CW
+        // Adjust threshold based on rotation speed
+        if (!accelerationTimer.timeout())
         {
-            lastCommand = Command::RIGHT;
+            stepThreshold = fastThreshold;
+        }
+        else
+        {
+            stepThreshold = defaultThreshold;
         }
 
-        else if (dir == 2) // CCW
-        {
-            lastCommand = Command::LEFT;
-        }
+        accelerationTimer.start();
+        lastCommand = (delta > 0) ? Command::LEFT : Command::RIGHT;
+        lastPosition = currentPosition;
+    }
+}
+
+void RotaryEncoder::handleButton()
+{
+    bool isPressed = digitalRead(ROTARY_BUTTON_PIN) == LOW;
+
+    if (isPressed && !buttonPressed && debounceTimer.timeout())
+    {
+        buttonPressed = true;
+        debounceTimer.start();
+        lastCommand = Command::SELECT;
     }
 
-    // Read the button state with debouncing
-
-    if (encoder.push())
+    if (!isPressed && buttonPressed && debounceTimer.timeout())
     {
-        lastCommand = Command::SELECT;
+        buttonPressed = false;
+        debounceTimer.start();
     }
 }
 
 Command RotaryEncoder::readCommand()
 {
-    Command currentCmd = lastCommand;
-    lastCommand = Command::NONE; // Clear the command after reading
-    return currentCmd;
+    Command cmd = lastCommand;
+    lastCommand = Command::NONE;
+    return cmd;
 }
