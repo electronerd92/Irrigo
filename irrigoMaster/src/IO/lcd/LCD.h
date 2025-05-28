@@ -25,9 +25,15 @@ public:
     void update();
 
     template <typename T>
-    inline void print(const T &message, uint8_t col = 0, uint8_t row = 0)
+    inline void print(const T &message, uint8_t col, uint8_t row)
     {
         lcd.setCursor(col, row);
+        lcd.print(message);
+    }
+
+    template <typename T>
+    inline void print(const T &message)
+    {
         lcd.print(message);
     }
 

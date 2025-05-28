@@ -94,8 +94,9 @@ bool MenuItem::printLine(LCD *lcd, uint8_t line, uint8_t menuCursor)
 
     if (index == 0 && parent != nullptr)
     {
-        lcd->print(parent->name, 1, line);
-        lcd->print(F("^"), lcd->getColumnsNumber() - 1, line);
+        lcd->print(F("["), 1, line);
+        lcd->print(this->name, 2, line);
+        lcd->print(F("]"));
         return true;
     }
     else if (index < getItemsCount())
